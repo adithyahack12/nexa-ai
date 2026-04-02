@@ -1,0 +1,31 @@
+# NEXA AI - Setup Manual
+
+Welcome! To run this project on your computer, please follow these steps:
+
+## Prerequisites
+1. **Node.js**: Make sure you have Node.js installed (version 18 or higher recommended). Download it from https://nodejs.org/
+2. **API Key**: You will need a Groq API Key to use the AI chat features. Get one for free at https://console.groq.com/
+
+## Setup Instructions
+1. **Extract the ZIP**: Unzip all files into a folder.
+2. **Open Terminal**: Open a terminal/command prompt in that folder.
+3. **Install Dependencies**:
+   Run the following command to download the necessary libraries:
+   ```bash
+   npm install
+   ```
+4. **Configure Environment Variables**:
+   - Locate the file named `.env.example`.
+   - Rename it to `.env.local`.
+   - Open `.env.local` and paste your Groq API Key where it says `your_api_key_here`.
+5. **Run the Project**:
+   Run the development command:
+   ```bash
+   npm run dev
+   ```
+6. **View the Site**:
+   The site should automatically open in your browser, or you can go to:
+   - Frontend: http://localhost:5173
+   - Backend: http://localhost:3001
+
+Enjoy!

@@ -1,0 +1,40 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./src (forntend)/*"
+            ]
+        },
+        "jsx": "react-jsx",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+        "target": "esnext",
+        "checkJs": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "types": ["vite/client"]
+    },
+    "include": [
+        "src (forntend)/components/**/*.js",
+        "src (forntend)/components/**/*.jsx",
+        "src (forntend)/pages/**/*.jsx",
+        "src (forntend)/Layout.jsx",
+        "src (forntend)/main.jsx",
+        "src (forntend)/App.jsx"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "src (forntend)/vite-plugins",
+        "src (forntend)/components/ui",
+        "src (forntend)/api",
+        "src (forntend)/lib"
+    ]
+}
