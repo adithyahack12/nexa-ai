@@ -150,7 +150,7 @@ export default function Canvas() {
     const generateImage = () => {
         if (!prompt.trim() || !isImagine) return;
         if (!validateSafety(prompt)) return;
-        
+
         setSafetyError("");
         setIsLoading(true);
         addToHistory(prompt, "imagine");
@@ -165,10 +165,10 @@ export default function Canvas() {
         const apiKey = import.meta.env.VITE_POLLINATIONS_API_KEY || "";
         const size = 512;
         const seed = Math.floor(Math.random() * 10000);
-        
+
         // ⚡ Use the the most modern endpoint (gen.pollinations.ai)
         // If an API key is present, use it to bypass 401/Unauthorized issues
-        const baseUrl = apiKey ? "https://gen.pollinations.ai/image" : "https://pollinations.ai/p";
+        const baseUrl = apiKey ? "https://gen.pollinations.ai/image" : "https://image.pollinations.ai/prompt";
         const keyParam = apiKey ? `&key=${apiKey}` : "";
         const url = `${baseUrl}/${encodeURIComponent(optimizedPrompt)}?width=${size}&height=${size}&seed=${seed}&nologo=true&model=flux${keyParam}`;
 
