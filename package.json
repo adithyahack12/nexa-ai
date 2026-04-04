@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm run server\" \"vite --host --open\"",
     "server": "node \"server(backend)/index.js\"",
-    "start": "npm run build && node \"server(backend)/index.js\"",
+    "start": "node \"server(backend)/index.js\"",
     "build": "vite build",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
