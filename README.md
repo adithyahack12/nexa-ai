@@ -2,8 +2,9 @@
 
 **About**
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+View and Edit your app on [Base44.com](http://Base44.com) 
 
+**Live URL:** [https://nexa-ai-1-st64.onrender.com/](https://nexa-ai-1-st64.onrender.com/)
 This project contains everything you need to run your app locally.
 
 **Edit the code in your local development environment**

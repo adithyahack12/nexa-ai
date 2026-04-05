@@ -54,7 +54,7 @@ export default function Landing() {
   ];
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText("https://nexa-ai-1-st64.onrender.com/");
     toast({
       title: "Link Copied!",
       description: "Project link copied to clipboard. Share it with your team!",
