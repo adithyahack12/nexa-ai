@@ -14,51 +14,93 @@ mermaid.initialize({
     flowchart: { htmlLabels: false },
 });
 
-// Sanitize AI-generated Mermaid code for v11 compatibility
+// Deep sanitizer for Mermaid v11 compatibility
 const sanitizeMermaid = (raw) => {
-    return raw
+    // Step 1: Strip markdown code fences
+    let code = raw
         .replace(/```mermaid/gi, "")
         .replace(/```/g, "")
-        // Remove lines that are not graph syntax
-        .split("\n")
-        .map(line => {
-            // Replace smart/curly quotes with straight quotes
-            let l = line.replace(/[\u2018\u2019\u201C\u201D]/g, "'");
-            // Remove colons inside node labels (outside brackets they break parsing)
-            l = l.replace(/(\[[^\]]*):([^\]]*\])/g, "$1 -$2");
-            return l;
-        })
-        .join("\n")
         .trim();
+
+    // Step 2: Extract only lines from 'graph' onwards (drop AI preamble text)
+    const lines = code.split("\n");
+    const graphStart = lines.findIndex(l => /^\s*(graph|flowchart)\s+(TD|LR|TB|RL|BT)/i.test(l));
+    if (graphStart === -1) return "";
+    const diagramLines = lines.slice(graphStart);
+
+    // Step 3: Clean each line
+    const cleaned = diagramLines.map(line => {
+        let l = line;
+        // Replace smart/curly quotes
+        l = l.replace(/[\u2018\u2019\u201C\u201D`]/g, "'");
+        // Remove edge label text e.g. -->|label| → --> to avoid v11 parse issues
+        l = l.replace(/-->[|]([^|]*)[|]/g, "-->");
+        l = l.replace(/---[|]([^|]*)[|]/g, "---");
+        // Clean colons inside square-bracket labels
+        l = l.replace(/\[([^\]]*)\]/g, (match, inner) => {
+            const safe = inner
+                .replace(/:/g, " -")
+                .replace(/[{}()/\\<>]/g, " ")
+                .replace(/"/g, "'")
+                .replace(/  +/g, " ")
+                .trim();
+            return `[${safe}]`;
+        });
+        // Fix node IDs that start with a digit → prefix with 'N'
+        l = l.replace(/^(\s*)(\d)(\w*)(\s*-->|\s*---)/g, '$1N$2$3$4');
+        return l;
+    });
+
+    return cleaned.join("\n").trim();
 };
 
 const MermaidPreview = ({ chart }) => {
     const ref = useRef(null);
     const [error, setError] = useState(null);
+    const [errMsg, setErrMsg] = useState("");
 
     useEffect(() => {
-        if (ref.current && chart) {
-            setError(null);
-            const id = `mermaid-${Date.now()}`;
+        if (!ref.current || !chart) return;
+        setError(null);
+        setErrMsg("");
 
-            const renderDiagram = async () => {
-                try {
-                    // Validation Step
-                    await mermaid.parse(chart);
+        const id = `mermaid-${Date.now()}`;
 
-                    const { svg } = await mermaid.render(id, chart);
-                    if (ref.current) ref.current.innerHTML = svg;
-                } catch (e) {
-                    console.error("Mermaid Parse/Render Error:", e);
-                    setError("Syntax Error in Diagram");
-                }
-            };
+        const renderDiagram = async () => {
+            try {
+                // Re-initialize to clear any stale state from previous renders
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: "dark",
+                    securityLevel: "loose",
+                    fontFamily: "Inter, sans-serif",
+                    flowchart: { htmlLabels: false, curve: "basis" },
+                });
 
-            renderDiagram();
-        }
+                await mermaid.parse(chart);
+                const { svg } = await mermaid.render(id, chart);
+                if (ref.current) ref.current.innerHTML = svg;
+            } catch (e) {
+                console.error("Mermaid Error:", e);
+                setError(true);
+                // Show a clean error message
+                const msg = e?.message || "";
+                setErrMsg(msg.includes("Parse") || msg.includes("Lexical")
+                    ? "Diagram syntax invalid — please try a different topic."
+                    : "Could not render diagram — please try again."
+                );
+            }
+        };
+
+        renderDiagram();
     }, [chart]);
 
-    if (error) return <div className="text-red-400 text-xs bg-red-400/10 p-4 rounded-xl border border-red-400/20">{error}</div>;
+    if (error) return (
+        <div className="text-red-400 text-sm bg-red-400/10 p-5 rounded-xl border border-red-400/20 text-center space-y-2">
+            <p className="font-bold">⚠ Diagram Error</p>
+            <p className="text-xs text-red-300/70">{errMsg}</p>
+        </div>
+    );
 
     return <div ref={ref} className="mermaid-container transition-all scale-125 md:scale-150" />;
 };
@@ -208,20 +250,18 @@ export default function Canvas() {
                 body: JSON.stringify({
                     messages: [{
                         role: "user",
-                        content: `
-Generate a VALID Mermaid diagram ONLY.
+                        content: `Generate a valid Mermaid flowchart diagram for the topic below.
 
-Rules:
-- Use ONLY: graph TD
-- Use --> for arrows
-- Use professional academic terminology for the syllabus (CBSE/JNTU/SSC).
-- For engineering topics, ensure technical schematic accuracy.
-- Do NOT use special characters (), {}, :, etc except inside node brackets [ ]
-- Do NOT include any explanation
-- Output ONLY plain Mermaid code
+STRICT RULES (Mermaid v11):
+1. Start with exactly: graph TD
+2. Use only --> for arrows. Never use -->|label| or ---
+3. Node IDs: short single words only, no spaces, no numbers at start. Example: A, B, NodeName
+4. Node labels: use only square brackets [ ]. Example: A[Label Text]
+5. Inside labels: NO colons, NO parentheses, NO curly braces, NO quotes, NO slashes
+6. NO subgraph, NO classDef, NO click, NO style lines
+7. Output ONLY the raw Mermaid code — no explanation, no markdown fences, no extra text
 
-Topic: ${prompt}
-`
+Topic: ${prompt}`
                     }]
                 }),
             });
