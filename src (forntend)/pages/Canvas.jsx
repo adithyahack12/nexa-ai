@@ -7,11 +7,30 @@ import mermaid from "mermaid";
 import html2canvas from "html2canvas";
 
 mermaid.initialize({
-    startOnLoad: true,
+    startOnLoad: false,
     theme: "dark",
     securityLevel: "loose",
     fontFamily: "Inter, sans-serif",
+    flowchart: { htmlLabels: false },
 });
+
+// Sanitize AI-generated Mermaid code for v11 compatibility
+const sanitizeMermaid = (raw) => {
+    return raw
+        .replace(/```mermaid/gi, "")
+        .replace(/```/g, "")
+        // Remove lines that are not graph syntax
+        .split("\n")
+        .map(line => {
+            // Replace smart/curly quotes with straight quotes
+            let l = line.replace(/[\u2018\u2019\u201C\u201D]/g, "'");
+            // Remove colons inside node labels (outside brackets they break parsing)
+            l = l.replace(/(\[[^\]]*):([^\]]*\])/g, "$1 -$2");
+            return l;
+        })
+        .join("\n")
+        .trim();
+};
 
 const MermaidPreview = ({ chart }) => {
     const ref = useRef(null);
@@ -47,7 +66,7 @@ const MermaidPreview = ({ chart }) => {
 export default function Canvas() {
     const [mode, setMode] = useState("diagram");
     const [chart, setChart] = useState(`graph TD
-    A[Voice Command] --> B(Real-time Art)
+    A[Voice Command] --> B[Real-time Art]
     B --> C[Neural Canvas]`);
     const [prompt, setPrompt] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -207,18 +226,24 @@ Topic: ${prompt}
                 }),
             });
             const text = await res.text();
-            const cleaned = text.replace(/```mermaid/g, "").replace(/```/g, "").trim();
+            const cleaned = sanitizeMermaid(text);
 
             console.log("Mermaid Output:", cleaned);
 
             if (!cleaned.startsWith("graph")) {
-                setChart(`graph TD
-A[Invalid Input] --> B[Try Again]`);
+                setChart(`graph TD\n    A[Invalid Response] --> B[Please Try Again]`);
                 return;
             }
 
-            setChart(cleaned);
-            setPrompt("");
+            // Validate before setting to catch syntax errors early
+            try {
+                await mermaid.parse(cleaned);
+                setChart(cleaned);
+                setPrompt("");
+            } catch (parseErr) {
+                console.error("Mermaid validation failed:", parseErr);
+                setChart(`graph TD\n    A[Diagram Error] --> B[Try a simpler topic]`);
+            }
         } catch (error) {
             console.error(error);
         } finally {
