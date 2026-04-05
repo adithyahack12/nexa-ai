@@ -7,26 +7,98 @@ import mermaid from "mermaid";
 import { cn } from "@/lib/utils";
 
 mermaid.initialize({
-  startOnLoad: true,
+  startOnLoad: false,
   theme: "dark",
   securityLevel: "loose",
   fontFamily: "Inter, sans-serif",
+  flowchart: { htmlLabels: false, curve: "basis" },
 });
+
+// Deep sanitizer for Mermaid v11 compatibility
+const sanitizeMermaid = (raw) => {
+  // Step 1: Strip markdown code fences
+  let code = raw
+    .replace(/```mermaid/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  // Step 2: Extract only lines from 'graph' onwards (drop AI preamble text)
+  const lines = code.split("\n");
+  const graphStart = lines.findIndex(l => /^\s*(graph|flowchart)\s+(TD|LR|TB|RL|BT)/i.test(l));
+  if (graphStart === -1) return code; // return as is if no graph tag found
+  const diagramLines = lines.slice(graphStart);
+
+  // Step 3: Clean each line
+  const cleaned = diagramLines.map(line => {
+    let l = line;
+    // Replace smart/curly quotes
+    l = l.replace(/[\u2018\u2019\u201C\u201D`]/g, "'");
+    // Remove edge label text e.g. -->|label| → --> to avoid v11 parse issues
+    l = l.replace(/-->[|]([^|]*)[|]/g, "-->");
+    l = l.replace(/---[|]([^|]*)[|]/g, "---");
+    // Clean colons inside square-bracket labels
+    l = l.replace(/\[([^\]]*)\]/g, (match, inner) => {
+      const safe = inner
+        .replace(/:/g, " -")
+        .replace(/[{}()/\\<>]/g, " ")
+        .replace(/"/g, "'")
+        .replace(/  +/g, " ")
+        .trim();
+      return `[${safe}]`;
+    });
+    // Fix node IDs that start with a digit → prefix with 'N'
+    l = l.replace(/^(\s*)(\d)(\w*)(\s*-->|\s*---)/g, '$1N$2$3$4');
+    return l;
+  });
+
+  return cleaned.join("\n").trim();
+};
 
 const Mermaid = ({ chart }) => {
   const ref = useRef(null);
+  const [error, setError] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
-    if (ref.current && chart) {
-      mermaid.contentLoaded();
-      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-      mermaid.render(id, chart).then(({ svg }) => {
+    if (!ref.current || !chart) return;
+    setError(false);
+    setErrMsg("");
+
+    const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+
+    const renderDiagram = async () => {
+      try {
+        // Re-initialize to clear any stale state from previous renders
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "dark",
+          securityLevel: "loose",
+          fontFamily: "Inter, sans-serif",
+          flowchart: { htmlLabels: false, curve: "basis" },
+        });
+
+        const cleaned = sanitizeMermaid(chart);
+        await mermaid.parse(cleaned);
+        const { svg } = await mermaid.render(id, cleaned);
         if (ref.current) ref.current.innerHTML = svg;
-      }).catch((err) => {
-        console.error("Mermaid Render Error:", err);
-      });
-    }
+      } catch (e) {
+        console.error("Mermaid Render Error:", e);
+        setError(true);
+        setErrMsg(e?.message || "Diagram syntax issue");
+      }
+    };
+
+    renderDiagram();
   }, [chart]);
+
+  if (error) {
+    return (
+      <div className="my-6 p-6 bg-red-900/10 rounded-2xl border border-red-500/20 text-center">
+        <p className="text-red-400 text-xs font-bold mb-1">⚠ Diagram Syntax Error</p>
+        <p className="text-[10px] text-red-300/50 italic line-clamp-2">{errMsg}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="my-6 p-6 bg-slate-900/50 rounded-2xl border border-white/10 shadow-2xl overflow-x-auto flex justify-center">
