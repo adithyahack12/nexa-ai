@@ -19,7 +19,7 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3001',
+        target: 'https://nexa-ai-1-st64.onrender.com/',
         changeOrigin: true,
         secure: false,
       },
