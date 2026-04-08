@@ -182,7 +182,7 @@ export default function Canvas() {
             };
 
             recognitionRef.current.onerror = (event) => {
-                console.error("Speech Error:", event.error);
+                console.error("Speech Recognition Error (Canvas):", event.error);
                 setIsListening(false);
             };
 

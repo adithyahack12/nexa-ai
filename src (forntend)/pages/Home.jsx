@@ -21,6 +21,40 @@ import { cn } from "@/lib/utils";
 export default function Home() {
   const [chatStarted, setChatStarted] = useState(false);
   const [initialInput, setInitialInput] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  React.useEffect(() => {
+    const SpeechRecognition = window['SpeechRecognition'] || window['webkitSpeechRecognition'];
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInitialInput(transcript);
+        setIsListening(false);
+      };
+      recognitionRef.current.onerror = (err) => {
+        console.error("Speech Recognition Error (Home):", err);
+        setIsListening(false);
+      };
+      recognitionRef.current.onend = () => setIsListening(false);
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert("Speech recognition not supported in this browser.");
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
 
   const handleStartChat = () => {
     if (initialInput.trim()) {
@@ -77,12 +111,20 @@ export default function Home() {
                 className="w-full bg-transparent border-none outline-none px-10 py-8 text-xl text-white placeholder:text-slate-700 resize-none min-h-[100px] leading-relaxed"
               />
               <div className="absolute right-6 bottom-6 flex items-center gap-4">
-                <button className="p-4 text-slate-600 hover:text-white transition-colors bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10">
-                  <Mic size={24} />
+                <button 
+                  onClick={toggleListening}
+                  className={cn(
+                    "p-4 transition-all active:scale-95 rounded-2xl border shadow-xl relative",
+                    isListening ? "bg-red-500/20 border-red-500/50 text-red-500 animate-pulse" : "bg-white/5 border-white/10 text-slate-600 hover:text-white hover:bg-white/10"
+                  )}
+                  title={isListening ? "Listening..." : "Voice Input"}
+                >
+                  {isListening ? <Mic size={24} className="animate-bounce" /> : <Mic size={24} />}
                 </button>
                 <button 
                   onClick={handleStartChat}
-                  className="px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-[1.5rem] font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-orange-600/20 group text-lg"
+                  disabled={!initialInput.trim()}
+                  className="px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-[1.5rem] font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-orange-600/20 group text-lg disabled:opacity-50 disabled:hover:scale-100"
                 >
                   Ask <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </button>

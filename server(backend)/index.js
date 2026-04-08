@@ -207,8 +207,12 @@ app.use((req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`\n🚀 Nexa AI Alpha is LIVE on port ${PORT}`);
-    console.log(`🔗 Local URL:  http://localhost:${PORT}`);
-    console.log(`🌐 Public URL: https://nexa-ai-1-st64.onrender.com/`);
+    // Small delay to ensure Vite logs don't overwrite this
+    setTimeout(() => {
+        console.log(`\n\x1b[35m=========================================\x1b[0m`);
+        console.log(`\x1b[1m🚀 NEXA AI SYSTEM STATUS: ONLINE\x1b[0m`);
+        console.log(`\x1b[1m🌐 Render Server:\x1b[0m \x1b[36mhttps://nexa-ai-1-st64.onrender.com/\x1b[0m`);
+        console.log(`\x1b[35m=========================================\x1b[0m\n`);
+    }, 500);
 });
 

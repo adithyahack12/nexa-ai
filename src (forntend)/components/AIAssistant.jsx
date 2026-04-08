@@ -282,7 +282,10 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
         setInput(transcript);
         setIsListening(false);
       };
-      recognitionRef.current.onerror = () => setIsListening(false);
+      recognitionRef.current.onerror = (err) => {
+        console.error("Speech Recognition Error (Assistant):", err);
+        setIsListening(false);
+      };
       recognitionRef.current.onend = () => setIsListening(false);
     }
   }, []);
