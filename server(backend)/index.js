@@ -208,6 +208,7 @@ app.use((req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`\n🚀 Nexa AI Alpha is LIVE on port ${PORT}`);
-    console.log(`🔗 Public URL: https://nexa-ai-1-st64.onrender.com/`);
+    console.log(`🔗 Local URL:  http://localhost:${PORT}`);
+    console.log(`🌐 Public URL: https://nexa-ai-1-st64.onrender.com/`);
 });
 

@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename)
 
 // https://vite.dev/config/
 export default defineConfig({
-  logLevel: 'error', // Suppress warnings, only show errors
+  logLevel: 'info', // Show server status and links in console
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src (forntend)"),
@@ -19,7 +19,8 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'https://nexa-ai-1-st64.onrender.com/',
+        // target: 'https://nexa-ai-1-st64.onrender.com/', // Production
+        target: 'https://nexa-ai-1-st64.onrender.com/', // Production URL
         changeOrigin: true,
         secure: false,
       },
