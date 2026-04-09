@@ -216,10 +216,10 @@ export default function Canvas() {
         setIsLoading(true);
         addToHistory(prompt, "imagine");
 
-        // ⚡ Optimized prompt for faster rendering
+        // ⚡ Optimized prompt with better style control
         const academicSuffix = isAcademic
-            ? ", academic illustration, clean 2D vector, white background, educational"
-            : ", simple, high quality render";
+            ? ", academic illustration, clean 2D vector, white background, educational style"
+            : ", photorealistic, cinematic lighting, 8k resolution, highly detailed, masterpieces, natural textures";
         const optimizedPrompt = `${prompt}${academicSuffix}`;
 
         // ⚡ Get API Key from environment if available
