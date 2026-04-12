@@ -1,7 +1,39 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Copy, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
+const SHARE_PLATFORMS = [
+    {
+        name: "WhatsApp",
+        color: "#25D366",
+        icon: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z",
+        getHref: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + "\n" + u)}`
+    },
+    {
+        name: "X",
+        color: "#000000",
+        icon: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z",
+        getHref: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}`
+    },
+    {
+        name: "Facebook",
+        color: "#1877F2",
+        icon: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z",
+        getHref: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}`
+    },
+    {
+        name: "LinkedIn",
+        color: "#0A66C2",
+        icon: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z",
+        getHref: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}`
+    },
+    {
+        name: "Instagram",
+        color: "linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7)",
+        icon: "M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36.105.415 2.227.057 1.266.07 1.646.07 4.85s-.015 3.584-.071 4.85c-.055 1.17-.249 1.805-.415 2.227-.217.562-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.164-1.056.36-2.227.415-1.266.057-1.646.07-4.85.07s-3.584-.015-4.85-.07c-1.17-.055-1.805-.249-2.227-.415-.562-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.164-.422-.36-1.056-.415-2.227C2.177 15.584 2.16 15.203 2.16 12s.016-3.585.071-4.85c.055-1.17.249-1.805.415-2.227.217-.562.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.164 1.056-.36 2.227-.415 1.266-.057 1.646-.07 4.85-.07zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z",
+        getHref: () => `https://www.instagram.com/`
+    }
+];
 
 export default function ShareModal({ isOpen, onClose, url, title }) {
     const [copied, setCopied] = React.useState(false);
@@ -14,67 +46,12 @@ export default function ShareModal({ isOpen, onClose, url, title }) {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const shareLinks = [
-        {
-            name: "WhatsApp",
-            icon: (
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                </svg>
-            ),
-            color: "bg-[#25D366] hover:shadow-[#25D366]/40",
-            href: `https://api.whatsapp.com/send?text=${encodeURIComponent(title + "\n" + fullUrl)}`
-        },
-        {
-            name: "X",
-            icon: (
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-            ),
-            color: "bg-black border border-white/20 hover:shadow-white/10",
-            href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(title)}`
-        },
-        {
-            name: "Facebook",
-            icon: (
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-            ),
-            color: "bg-[#1877F2] hover:shadow-[#1877F2]/40",
-            href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`
-        },
-        {
-            name: "LinkedIn",
-            icon: (
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-            ),
-            color: "bg-[#0A66C2] hover:shadow-[#0A66C2]/40",
-            href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullUrl)}`
-        },
-        {
-            name: "Instagram",
-            icon: (
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36.105.415 2.227.057 1.266.07 1.646.07 4.85s-.015 3.584-.071 4.85c-.055 1.17-.249 1.805-.415 2.227-.217.562-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.164-1.056.36-2.227.415-1.266.057-1.646.07-4.85.07s-3.584-.015-4.85-.07c-1.17-.055-1.805-.249-2.227-.415-.562-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.164-.422-.36-1.056-.415-2.227C2.177 15.584 2.16 15.203 2.16 12s.016-3.585.071-4.85c.055-1.17.249-1.805.415-2.227.217-.562.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.164 1.056-.36 2.227-.415 1.266-.057 1.646-.07 4.85-.07zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                </svg>
-            ),
-            color: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:shadow-[#ee2a7b]/40",
-            href: `https://www.instagram.com/`
-        }
-    ];
-
     return (
         <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
                     <motion.div 
-                        initial={{ opacity: 0 }} 
-                        animate={{ opacity: 1 }} 
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="absolute inset-0 bg-black/90 backdrop-blur-md" 
                         onClick={onClose} 
                     />
@@ -82,68 +59,58 @@ export default function ShareModal({ isOpen, onClose, url, title }) {
                         initial={{ scale: 0.9, opacity: 0, y: 30 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                        className="relative w-full max-w-[420px] bg-[#0A0A0A] border border-white/10 p-8 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+                        className="relative w-full max-w-[440px] bg-[#0A0A0A] border border-white/10 p-8 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,1)] overflow-hidden"
                     >
-                        {/* Decorative background glow */}
-                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 blur-[80px]" />
-                        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 blur-[80px]" />
-
+                        {/* Title Section */}
                         <div className="flex justify-between items-center mb-8 relative z-10">
                             <div>
-                                <h2 className="text-3xl font-black text-white tracking-tighter italic">Share NexaAI</h2>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em] mt-1">Spread the intelligence</p>
+                                <h2 className="text-3xl font-black text-white tracking-tighter italic leading-none">Share NexaAI</h2>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">Spread the intelligence</p>
                             </div>
-                            <button onClick={onClose} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 border border-white/5">
+                            <button onClick={onClose} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400">
                                 <X size={20} />
                             </button>
                         </div>
                         
-                        <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 mb-8 relative z-10 text-center">
-                            <p className="text-xs text-slate-300 leading-relaxed font-medium line-clamp-2 italic">"{title}"</p>
+                        {/* Content Area */}
+                        <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 mb-8 text-center italic text-sm text-slate-300">
+                           "{title}"
                         </div>
 
-                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mb-10 relative z-10 items-start">
-                            {shareLinks.map(link => (
+                        {/* Force Grid Layout */}
+                        <div className="flex flex-wrap justify-center gap-5 mb-10 relative z-10">
+                            {SHARE_PLATFORMS.map((platform) => (
                                 <a 
-                                    key={link.name}
-                                    href={link.href}
+                                    key={platform.name}
+                                    href={platform.getHref(fullUrl, title)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex flex-col items-center gap-2.5 group"
+                                    className="flex flex-col items-center gap-3 transition-transform hover:-translate-y-1 active:scale-95 group"
                                 >
-                                    <div className={cn(
-                                        "w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-white transition-all cursor-pointer group-hover:-translate-y-1 shadow-xl",
-                                        link.color
-                                    )}>
-                                        {link.icon}
+                                    <div 
+                                        className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-2xl"
+                                        style={{ background: platform.color }}
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                                            <path d={platform.icon} />
+                                        </svg>
                                     </div>
-                                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest text-center group-hover:text-white transition-colors">
-                                        {link.name}
-                                    </span>
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest group-hover:text-white">{platform.name}</span>
                                 </a>
                             ))}
                         </div>
 
+                        {/* Bottom Copy Area */}
                         <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-3 px-1">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Quick Link</p>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-1.5 focus-within:border-orange-500/50 transition-all">
-                                    <div className="flex-1 truncate text-xs text-slate-400 px-3 font-mono">
-                                        {fullUrl}
-                                    </div>
-                                    <button 
-                                        onClick={handleCopy}
-                                        className={cn(
-                                            "px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 shrink-0",
-                                            copied ? "bg-green-600 text-white" : "bg-white text-black hover:bg-slate-200"
-                                        )}
-                                    >
-                                        {copied ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
-                                        {copied ? "Done" : "Copy"}
-                                    </button>
-                                </div>
+                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 mb-3 px-1">Quick Link</p>
+                            <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-1.5">
+                                <div className="flex-1 truncate text-xs text-slate-400 px-3 font-mono">{fullUrl}</div>
+                                <button 
+                                    onClick={handleCopy}
+                                    className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${copied ? 'bg-green-600 text-white' : 'bg-white text-black'}`}
+                                >
+                                    {copied ? 'Copied' : 'Copy'}
+                                </button>
                             </div>
                         </div>
                     </motion.div>
