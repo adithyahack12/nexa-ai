@@ -6,12 +6,45 @@ import { cn } from "@/lib/utils";
 export default function PDFQa() {
     const [fileUploaded, setFileUploaded] = useState(false);
     const [fileName, setFileName] = useState("");
+    const [extractedText, setExtractedText] = useState("");
+    const [isParsing, setIsParsing] = useState(false);
 
-    const handleFileUpload = (e) => {
+    const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (file) {
             setFileName(file.name);
-            setFileUploaded(true);
+            setIsParsing(true);
+            
+            try {
+                // Load pdfjs from CDN dynamically if not already present
+                if (!window['pdfjsLib']) {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                    document.head.appendChild(script);
+                    await new Promise(resolve => script.onload = resolve);
+                }
+
+                const pdfjsLib = window['pdfjsLib'];
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                
+                let fullText = "";
+                for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) { // Limit to 10 pages for speed
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    fullText += textContent.items.map(item => item.str).join(" ") + "\n";
+                }
+
+                setExtractedText(fullText);
+                setFileUploaded(true);
+            } catch (error) {
+                console.error("PDF Parsing Error:", error);
+                alert("Failed to parse PDF. Please try a simpler file.");
+            } finally {
+                setIsParsing(false);
+            }
         }
     };
 
@@ -33,11 +66,24 @@ export default function PDFQa() {
                         <p className="text-sm text-slate-500 max-w-xs leading-relaxed">Analyze textbooks, research papers or technical manuals instantly.</p>
                     </div>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white/[0.02] rounded-[2.5rem] border border-white/5">
-                        <FileText size={64} className="text-orange-500 mb-6" />
-                        <h3 className="text-xl font-bold text-white mb-2">{fileName}</h3>
-                        <p className="text-sm text-slate-500 uppercase font-black tracking-widest">Document Parsed</p>
-                        <button onClick={() => setFileUploaded(false)} className="mt-8 px-6 py-2 text-xs font-bold text-slate-500 hover:text-white transition-colors">Replace Document</button>
+                    <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white/[0.02] rounded-[2.5rem] border border-white/5 relative overflow-hidden">
+                        {isParsing ? (
+                             <div className="flex flex-col items-center animate-pulse">
+                                <div className="w-16 h-16 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mb-6" />
+                                <h3 className="text-xl font-bold text-white mb-2">Neural Extraction...</h3>
+                                <p className="text-xs text-slate-500 uppercase tracking-widest">Parsing Document Context</p>
+                             </div>
+                        ) : (
+                            <>
+                                <FileText size={64} className="text-orange-500 mb-6" />
+                                <h3 className="text-xl font-bold text-white mb-2">{fileName}</h3>
+                                <p className="text-sm text-slate-500 uppercase font-black tracking-widest">Document Integrated</p>
+                                <div className="mt-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
+                                    <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest">{extractedText.split(' ').length} Words Analyzed</span>
+                                </div>
+                                <button onClick={() => { setFileUploaded(false); setExtractedText(""); }} className="mt-8 px-6 py-2 text-xs font-bold text-slate-500 hover:text-white transition-colors">Replace Document</button>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
@@ -53,7 +99,8 @@ export default function PDFQa() {
                 <div className="flex-1 p-6 overflow-hidden">
                     <AIAssistant 
                         fullWidth={true} 
-                        initialQuery={fileUploaded ? `I've uploaded "${fileName}". Please analyze it and summarize the key findings.` : ""}
+                        key={`${fileName}-${extractedText.length}`} 
+                        initialQuery={fileUploaded ? `I've successfully integrated the document "${fileName}".\n\nCONTEXT FROM DOCUMENT:\n${extractedText.substring(0, 3000)}\n\nBased on this context, please provide a comprehensive summary and let me know if you'd like to dive into specific details.` : ""}
                     />
                 </div>
             </div>
