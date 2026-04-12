@@ -79,15 +79,15 @@ export default function Home() {
       <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-10 px-6">
         {!chatStarted ? (
           <div className="max-w-4xl w-full flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000">
-            <div className="mb-12 opacity-5 pointer-events-none select-none">
-              <span className="text-[120px] font-black tracking-tighter uppercase italic">System 1</span>
+            <div className="mb-8 md:mb-12 opacity-5 pointer-events-none select-none">
+              <span className="text-6xl md:text-[120px] font-black tracking-tighter uppercase italic">System 1</span>
             </div>
 
             <div className="space-y-6">
-              <h1 className="text-6xl md:text-8xl font-bold tracking-tight bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-300 bg-clip-text text-transparent italic">
+              <h1 className="text-5xl md:text-8xl font-bold tracking-tight bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-300 bg-clip-text text-transparent italic leading-tight pb-2">
                 NexaAI
               </h1>
-              <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+              <p className="text-slate-400 text-base md:text-xl font-medium max-w-2xl mx-auto leading-relaxed px-4">
                 Intelligence without boundaries. <span className="text-white/60">Everything is free</span> — analyze, visualize, and create in real-time.
               </p>
             </div>
@@ -109,39 +109,39 @@ export default function Home() {
 
       {/* Hero Input Bar */}
       {!chatStarted && (
-        <div className="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#020205] via-[#020205]/80 to-transparent">
+        <div className="fixed bottom-20 md:bottom-0 left-0 right-0 p-4 md:p-8 bg-gradient-to-t from-[#020205] via-[#020205]/95 to-transparent z-40">
           <div className="max-w-4xl mx-auto w-full">
-            <div className="relative group overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.02] backdrop-blur-3xl shadow-2xl transition-all focus-within:border-orange-500/30 focus-within:ring-4 focus-within:ring-orange-500/5">
+            <div className="relative group overflow-hidden rounded-3xl md:rounded-[2.5rem] border border-white/10 bg-white/[0.02] backdrop-blur-3xl shadow-2xl transition-all focus-within:border-orange-500/30 focus-within:ring-4 focus-within:ring-orange-500/5 flex flex-col">
               <textarea
                 value={initialInput}
                 onChange={(e) => setInitialInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleStartChat(); }
                 }}
-                placeholder="Start a new intelligence session..."
-                className="w-full bg-transparent border-none outline-none px-10 py-8 text-xl text-white placeholder:text-slate-700 resize-none min-h-[100px] leading-relaxed"
+                placeholder="Start a session..."
+                className="w-full bg-transparent border-none outline-none px-6 py-6 md:px-10 md:py-8 text-base md:text-xl text-white placeholder:text-slate-700 resize-none min-h-[100px] md:min-h-[120px] leading-relaxed pb-20 md:pb-8"
               />
-              <div className="absolute right-6 bottom-6 flex items-center gap-4">
+              <div className="absolute right-3 bottom-3 md:right-6 md:bottom-6 flex items-center gap-2 md:gap-4">
                 <button
                   onClick={toggleListening}
                   className={cn(
-                    "p-4 transition-all active:scale-95 rounded-2xl border shadow-xl relative",
+                    "p-3 md:p-4 transition-all active:scale-95 rounded-xl md:rounded-2xl border shadow-xl relative",
                     isListening ? "bg-red-500/20 border-red-500/50 text-red-500 animate-pulse" : "bg-white/5 border-white/10 text-slate-600 hover:text-white hover:bg-white/10"
                   )}
                   title={isListening ? "Listening..." : "Voice Input"}
                 >
-                  {isListening ? <Mic size={24} className="animate-bounce" /> : <Mic size={24} />}
+                  {isListening ? <Mic size={20} className="animate-bounce md:w-6 md:h-6" /> : <Mic size={20} className="md:w-6 md:h-6" />}
                 </button>
                 <button
                   onClick={handleStartChat}
                   disabled={!initialInput.trim()}
-                  className="px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-[1.5rem] font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-orange-600/20 group text-lg disabled:opacity-50 disabled:hover:scale-100"
+                  className="px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl md:rounded-[1.5rem] font-bold flex items-center gap-2 md:gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-orange-600/20 group text-sm md:text-lg disabled:opacity-50 disabled:hover:scale-100"
                 >
-                  Ask <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  Ask <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform md:w-5 md:h-5" />
                 </button>
               </div>
             </div>
-            <p className="text-center mt-6 text-[10px] font-black text-slate-800 uppercase tracking-[0.4em]">
+            <p className="hidden md:block text-center mt-6 text-[10px] font-black text-slate-800 uppercase tracking-[0.4em]">
               Experimental Phase • 2026
             </p>
           </div>

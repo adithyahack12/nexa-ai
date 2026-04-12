@@ -159,10 +159,13 @@ app.post("/api/chat", async (req, res) => {
         }
 
         console.log("Using Groq API");
+        const userTime = req.body.userTime || new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
+        const currentTimeContext = `User Local Date and Time: ${userTime}`;
+
         const response = await groq.chat.completions.create({
             model: "llama-3.3-70b-versatile",
             messages: [
-                { role: "system", content: SYSTEM_INSTRUCTION },
+                { role: "system", content: `${SYSTEM_INSTRUCTION}\n\n${currentTimeContext}` },
                 ...messages.map(m => ({
                     role: m.role === "user" ? "user" : "assistant",
                     content: m.content

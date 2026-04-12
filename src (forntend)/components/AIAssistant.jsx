@@ -245,7 +245,10 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [userMessage] }),
+        body: JSON.stringify({ 
+            messages: [userMessage],
+            userTime: new Date().toLocaleString()
+        }),
       });
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -321,7 +324,10 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ 
+            messages: [...messages, userMessage],
+            userTime: new Date().toLocaleString()
+        }),
       });
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
