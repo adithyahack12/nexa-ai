@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Globe, Settings, RotateCcw } from "lucide-react";
+import { Globe, Settings, RotateCcw, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function DesktopNav({ navItems, currentPageName, historyCount, onHistoryClick }) {
+export default function DesktopNav({ navItems, currentPageName, historyCount, onHistoryClick, onShareClick }) {
     return (
         <nav className="fixed top-0 left-0 right-0 z-[100] px-6 py-4 hidden md:flex items-center justify-between border-b border-white/5 bg-black/40 backdrop-blur-3xl shadow-2xl transition-all">
             {/* Logo Section */}
@@ -28,8 +28,8 @@ export default function DesktopNav({ navItems, currentPageName, historyCount, on
                             to={item.path}
                             onClick={(e) => {
                                 if (item.onClick) {
-                                  e.preventDefault();
-                                  item.onClick();
+                                    e.preventDefault();
+                                    item.onClick();
                                 }
                             }}
                             className={cn(
@@ -37,10 +37,10 @@ export default function DesktopNav({ navItems, currentPageName, historyCount, on
                                 isActive && isHistory
                                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/40"
                                     : isActive
-                                    ? "bg-orange-600 text-white shadow-lg shadow-orange-600/40"
-                                    : isHistory
-                                    ? "text-purple-400 hover:text-white hover:bg-purple-500/10"
-                                    : "text-slate-500 hover:text-white hover:bg-white/5"
+                                        ? "bg-orange-600 text-white shadow-lg shadow-orange-600/40"
+                                        : isHistory
+                                            ? "text-purple-400 hover:text-white hover:bg-purple-500/10"
+                                            : "text-slate-500 hover:text-white hover:bg-white/5"
                             )}
                         >
                             {item.icon}
@@ -57,11 +57,14 @@ export default function DesktopNav({ navItems, currentPageName, historyCount, on
 
             {/* Settings/Controls Section */}
             <div className="flex items-center gap-3">
+                <button onClick={onShareClick} className="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-full transition-all" title="Share App">
+                    <Share2 size={20} />
+                </button>
                 <button className="p-2 text-slate-500 hover:text-white transition-colors">
                     <Settings size={20} />
                 </button>
-                <button 
-                    onClick={() => window.location.reload()} 
+                <button
+                    onClick={() => window.location.reload()}
                     className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-slate-400 hover:text-white transition-all active:scale-95 uppercase tracking-widest"
                 >
                     <RotateCcw size={16} /> Reset

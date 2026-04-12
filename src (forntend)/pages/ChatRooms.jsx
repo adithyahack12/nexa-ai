@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import AIAssistant from "@/components/AIAssistant";
 import { Link } from "react-router-dom";
-import { Users, Bot, MessageSquare, Plus, Hash, Globe, Settings, RotateCcw } from "lucide-react";
+import { Users, Bot, MessageSquare, Plus, Hash, Globe, Settings, RotateCcw, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ShareModal from "@/components/ShareModal";
 
 const AGENTS = [
     { id: "researcher", name: "Dr. Nova (Researcher)", icon: "🔬", description: "Specializes in deep scientific research and analysis.", model: "gemini-1.5-pro-latest" },
@@ -35,6 +36,7 @@ export default function ChatRooms() {
     const [selectedAgent, setSelectedAgent] = useState(AGENTS.find(a => a.id === rooms[0].agents[0]));
     const [isCreatingRoom, setIsCreatingRoom] = useState(false);
     const [newRoomData, setNewRoomData] = useState({ name: "", agents: ["tutor"] });
+    const [shareData, setShareData] = useState({ isOpen: false, url: "", title: "" });
 
     // Persist rooms to localStorage
     React.useEffect(() => {
@@ -66,6 +68,15 @@ export default function ChatRooms() {
             setSelectedRoom(updated[0]);
             setSelectedAgent(AGENTS.find(a => a.id === updated[0].agents[0]));
         }
+    };
+
+    const handleShare = (room, e) => {
+        e?.stopPropagation();
+        setShareData({
+            isOpen: true,
+            url: `/ChatRooms`,
+            title: `Join me in the NexaAI channel: ${room.name}`
+        });
     };
 
     return (
@@ -141,12 +152,21 @@ export default function ChatRooms() {
                                 </button>
                             );
                         })}
-                        <button 
-                             onClick={() => setIsCreatingRoom(true)}
-                             className="md:hidden ml-auto flex items-center justify-center p-2 rounded-full border border-dashed border-white/20 text-slate-500 hover:text-orange-400 shrink-0 shadow-lg"
-                        >
-                            <Plus size={16} />
-                        </button>
+                        <div className="ml-auto flex items-center gap-2">
+                            <button 
+                                onClick={(e) => handleShare(selectedRoom, e)}
+                                className="flex items-center justify-center p-2 rounded-full text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 transition-all shrink-0"
+                                title="Share Channel"
+                            >
+                                <Share2 size={16} />
+                            </button>
+                            <button 
+                                 onClick={() => setIsCreatingRoom(true)}
+                                 className="md:hidden flex items-center justify-center p-2 rounded-full border border-dashed border-white/20 text-slate-500 hover:text-orange-400 shrink-0 shadow-lg"
+                            >
+                                <Plus size={16} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Chat Display */}
@@ -264,6 +284,13 @@ export default function ChatRooms() {
                     </form>
                 </div>
             )}
+            
+            <ShareModal 
+                isOpen={shareData.isOpen}
+                onClose={() => setShareData({ ...shareData, isOpen: false })}
+                url={shareData.url}
+                title={shareData.title}
+            />
         </div>
     );
 }

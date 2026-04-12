@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
   Zap, 
@@ -14,10 +14,10 @@ import {
   Cpu
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useToast } from "@/components/ui/use-toast";
+import ShareModal from "@/components/ShareModal";
 
 export default function Landing() {
-  const { toast } = useToast();
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const features = [
     {
       title: "Neural Canvas",
@@ -54,11 +54,7 @@ export default function Landing() {
   ];
 
   const handleShare = () => {
-    navigator.clipboard.writeText("https://nexa-ai-1-st64.onrender.com/");
-    toast({
-      title: "Link Copied!",
-      description: "Project link copied to clipboard. Share it with your team!",
-    });
+    setIsShareModalOpen(true);
   };
 
   return (
@@ -87,6 +83,13 @@ export default function Landing() {
               <Share2 size={16} /> Share Link
             </button>
           </div>
+          
+          <button 
+             onClick={handleShare}
+             className="md:hidden p-2 bg-white/5 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-all active:scale-95"
+          >
+             <Share2 size={18} />
+          </button>
         </div>
       </nav>
 
@@ -262,6 +265,12 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+      <ShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        url="https://nexa-ai-1-st64.onrender.com/"
+        title="Check out NexaAI: Intelligence without boundaries. Everything is free — analyze, visualize, and generate in real-time."
+      />
     </div>
   );
 }

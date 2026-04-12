@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Sparkles, Bookmark, ArrowRight, Trash2 } from "lucide-react";
+import { Plus, Search, Sparkles, Bookmark, ArrowRight, Trash2, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ShareModal from "@/components/ShareModal";
 
 const DEFAULT_TOPICS = [
     { id: 1, title: "Quantum Physics", category: "Science", progress: 65, description: "Wave-particle duality and Schrödinger's equation." },
@@ -19,6 +20,7 @@ export default function Topics() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isAdding, setIsAdding] = useState(false);
     const [newTopic, setNewTopic] = useState({ title: "", category: "General", description: "" });
+    const [shareData, setShareData] = useState({ isOpen: false, url: "", title: "" });
 
     const navigate = useNavigate();
 
@@ -53,6 +55,15 @@ export default function Topics() {
     const deleteTopic = (id, e) => {
         e.stopPropagation();
         setTopics(topics.filter(t => t.id !== id));
+    };
+
+    const handleShare = (topic, e) => {
+        e.stopPropagation();
+        setShareData({
+            isOpen: true,
+            url: `/Assistant?q=${encodeURIComponent("Tell me more about " + topic.title)}`,
+            title: `Check out this topic on NexaAI: ${topic.title} - ${topic.description}`
+        });
     };
 
     return (
@@ -106,13 +117,22 @@ export default function Topics() {
                                     topic.category === "Science" ? "bg-blue-500/10 text-blue-400" :
                                         topic.category === "Code" ? "bg-purple-500/10 text-purple-400" : "bg-orange-500/10 text-orange-400"
                                 )}>{topic.category}</span>
-                                <button
-                                    onClick={(e) => deleteTopic(topic.id, e)}
-                                    className="p-2 text-slate-700 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                                    title="Delete Topic"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
+                                <div className="flex items-center gap-1">
+                                    <button
+                                        onClick={(e) => handleShare(topic, e)}
+                                        className="p-2 text-slate-700 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
+                                        title="Share Topic"
+                                    >
+                                        <Share2 size={16} />
+                                    </button>
+                                    <button
+                                        onClick={(e) => deleteTopic(topic.id, e)}
+                                        className="p-2 text-slate-700 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                        title="Delete Topic"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                             <h3 className="text-xl font-bold text-white mb-3 group-hover:text-orange-400 transition-colors">{topic.title}</h3>
                             <p className="text-sm text-slate-500 leading-relaxed mb-8 line-clamp-2">{topic.description || "Start a session to build your mastery in this subject."}</p>
@@ -213,6 +233,13 @@ export default function Topics() {
                     </form>
                 </div>
             )}
+            
+            <ShareModal 
+                isOpen={shareData.isOpen}
+                onClose={() => setShareData({ ...shareData, isOpen: false })}
+                url={shareData.url}
+                title={shareData.title}
+            />
         </div>
     );
 }
