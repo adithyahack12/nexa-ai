@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-export default function MobileNav({ navItems, currentPageName, historyCount }) {
+export default function MobileNav({ navItems, currentPageName, historyCount, onHistoryClick }) {
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-[100] md:hidden px-4 pb-6 pt-3 bg-black/60 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around">
             {navItems.filter(item => item.name !== "Canvas").map((item) => {

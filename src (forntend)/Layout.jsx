@@ -1,7 +1,10 @@
+import React from "react";
+import { Home, MessageSquare, BookOpen, FileText, Layout as CanvasIcon, Globe, History as HistoryIcon, Zap, RotateCcw } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import MobileNav from "@/components/MobileNav";
 import DesktopNav from "@/components/DesktopNav";
 import HistorySidebar from "@/components/HistorySidebar";
-import { useLocation } from "react-router-dom";
 
 export default function Layout({ children, currentPageName }) {
   const [historyOpen, setHistoryOpen] = React.useState(false);
@@ -23,7 +26,7 @@ export default function Layout({ children, currentPageName }) {
     { name: "Topics", icon: <BookOpen size={18} />, path: "/Topics" },
     { name: "PDF", icon: <FileText size={18} />, path: "/PDF" },
     { name: "Canvas", icon: <CanvasIcon size={18} />, path: "/Canvas" },
-    { name: "History", icon: <History size={18} />, path: "#", onClick: () => setHistoryOpen(true), badge: true },
+    { name: "History", icon: <HistoryIcon size={18} />, path: "#", onClick: () => setHistoryOpen(true), badge: true },
   ];
 
   const historyCount = (() => {
@@ -55,7 +58,7 @@ export default function Layout({ children, currentPageName }) {
                     <span className="text-lg font-bold text-white tracking-tight">NexaAI</span>
                 </Link>
                 <button onClick={() => setHistoryOpen(true)} className="p-2 text-purple-400 rounded-lg bg-purple-500/5 border border-purple-500/10 active:scale-90 transition-all">
-                    <History size={16} />
+                    <HistoryIcon size={16} />
                 </button>
             </nav>
 

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Globe, Settings, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function DesktopNav({ navItems, currentPageName, historyCount }) {
+export default function DesktopNav({ navItems, currentPageName, historyCount, onHistoryClick }) {
     return (
         <nav className="fixed top-0 left-0 right-0 z-[100] px-6 py-4 hidden md:flex items-center justify-between border-b border-white/5 bg-black/40 backdrop-blur-3xl shadow-2xl transition-all">
             {/* Logo Section */}
