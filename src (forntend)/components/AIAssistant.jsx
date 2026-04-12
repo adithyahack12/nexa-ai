@@ -313,6 +313,11 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
     setIsLoading(true);
     setStreamingText("");
     try {
+      // Save to global history
+      const savedHistory = JSON.parse(localStorage.getItem("nexaHistory") || "[]");
+      const newEntry = { id: Date.now(), prompt: text, mode: "chat", time: new Date() };
+      localStorage.setItem("nexaHistory", JSON.stringify([newEntry, ...savedHistory].slice(0, 50)));
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

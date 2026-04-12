@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import AIAssistant from "@/components/AIAssistant";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   MessageSquare,
   FileText,
@@ -23,6 +23,7 @@ export default function Home() {
   const [initialInput, setInitialInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
+  const location = useLocation();
 
   React.useEffect(() => {
     const SpeechRecognition = window['SpeechRecognition'] || window['webkitSpeechRecognition'];
@@ -61,6 +62,16 @@ export default function Home() {
       setChatStarted(true);
     }
   };
+
+  // Support for deep linking via ?q=... (used by History)
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q");
+    if (q) {
+      setInitialInput(q);
+      setChatStarted(true);
+    }
+  }, [location.search]);
 
   return (
     <div className="min-h-screen text-slate-200 selection:bg-orange-500/30 selection:text-white flex flex-col relative">

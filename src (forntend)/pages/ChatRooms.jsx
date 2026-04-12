@@ -7,11 +7,19 @@ import { cn } from "@/lib/utils";
 const AGENTS = [
     { id: "researcher", name: "Dr. Nova (Researcher)", icon: "🔬", description: "Specializes in deep scientific research and analysis.", model: "gemini-1.5-pro-latest" },
     { id: "coder", name: "BitMaster (Dev)", icon: "💻", description: "Expert in logic, React, and system architecture.", model: "gemini-1.5-flash-latest" },
-    { id: "creative", name: "Lumina (Creative)", icon: "🎨", description: "Fueling your imagination with design and storytelling.", model: "gemini-1.5-pro-latest" }
+    { id: "creative", name: "Lumina (Creative)", icon: "🎨", description: "Fueling your imagination with design and storytelling.", model: "gemini-1.5-pro-latest" },
+    { id: "tutor", name: "Nexa Tutor", icon: "🎓", description: "Specializes in explaining concepts and solving academic doubts.", model: "gemini-1.5-pro-latest" }
+];
+
+const SHARED_NOTES = [
+    { title: "Quantum Physics Basics", author: "Adithya", date: "2 mins ago", type: "PDF" },
+    { title: "React Design Patterns", author: "BotMaster", date: "1 hour ago", type: "NOTE" },
+    { title: "History Study Guide", author: "Sarah", date: "Yesterday", type: "LINK" }
 ];
 
 const ROOMS = [
     { id: "general", name: "General Intelligence", agents: ["researcher", "coder", "creative"] },
+    { id: "student-circle", name: "Student Study Circle", agents: ["tutor", "researcher"], isGroup: true },
     { id: "dev-hub", name: "Developer Nexus", agents: ["coder"] },
     { id: "lab", name: "Quantum Lab", agents: ["researcher"] }
 ];
@@ -84,12 +92,44 @@ export default function ChatRooms() {
                     </div>
 
                     {/* Chat Display */}
-                    <div className="flex-1 p-6 overflow-hidden">
-                        <AIAssistant 
-                            fullWidth={true} 
-                            key={`${selectedRoom.id}-${selectedAgent.id}`} 
-                            initialQuery={`Hello ${selectedAgent.name}, I'm joining the ${selectedRoom.name} channel.`}
-                        />
+                    <div className="flex-1 p-6 overflow-hidden flex">
+                        <div className="flex-1 overflow-hidden flex flex-col">
+                            <AIAssistant 
+                                fullWidth={true} 
+                                key={`${selectedRoom.id}-${selectedAgent.id}`} 
+                                initialQuery={selectedRoom.isGroup ? `Hello everyone! I'm here in the ${selectedRoom.name} to help with your academic doubts. Feel free to ask anything!` : `Hello ${selectedAgent.name}, I'm joining the ${selectedRoom.name} channel.`}
+                            />
+                        </div>
+
+                        {selectedRoom.isGroup && (
+                            <div className="w-80 ml-6 hidden xl:flex flex-col animate-in slide-in-from-right-10 duration-500">
+                                <div className="p-6 bg-white/[0.03] border border-white/10 rounded-[2.5rem] h-full flex flex-col">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-xs font-black uppercase tracking-widest text-orange-500">Shared Resources</h3>
+                                        <button className="p-2 bg-orange-500/10 text-orange-400 rounded-full hover:bg-orange-500/20 transition-all"><Plus size={14} /></button>
+                                    </div>
+
+                                    <div className="space-y-4 overflow-y-auto pr-2 scrollbar-none">
+                                        {SHARED_NOTES.map((note, i) => (
+                                            <div key={i} className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-all cursor-pointer group">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[10px] bg-white/10 text-slate-400 px-2 py-0.5 rounded-full uppercase font-bold">{note.type}</span>
+                                                    <span className="text-[9px] text-slate-600 font-medium">{note.date}</span>
+                                                </div>
+                                                <h4 className="text-[13px] font-bold text-slate-200 group-hover:text-orange-400 transition-colors">{note.title}</h4>
+                                                <p className="text-[10px] text-slate-500 mt-1 font-medium italic">Shared by {note.author}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-auto pt-6 border-t border-white/5">
+                                        <p className="text-[10px] text-slate-600 leading-relaxed">
+                                            Students in this circle can view and contribute to these notes. Shared materials are optimized for academic integrity.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

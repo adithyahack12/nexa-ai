@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { Layout as DiagramIcon, Wand2, Download, Layers, MousePointer2, Type, Send, Loader2, Maximize2, Trash2, Image as ImageIcon, Sparkles, Zap, X, Mic, MicOff, BookOpen, History, Clock, RotateCcw } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Layout as DiagramIcon, Wand2, Download, Layers, MousePointer2, Type, Send, Loader2, Maximize2, Trash2, Image as ImageIcon, Sparkles, Zap, X, Mic, MicOff, BookOpen, History, Clock, RotateCcw, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import mermaid from "mermaid";
@@ -133,6 +133,7 @@ export default function Canvas() {
     const [historyOpen, setHistoryOpen] = useState(false);
     const historyEndRef = useRef(null);
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Persist history to localStorage whenever it changes
     useEffect(() => {
@@ -151,6 +152,19 @@ export default function Canvas() {
             { id: Date.now(), prompt: text, mode: currentMode, time: new Date() },
             ...prev
         ].slice(0, 50)); // keep last 50
+    };
+
+    const closeHistory = () => {
+        setHistoryOpen(false);
+        // If the URL contains ?history=open, it means we came from the global navbar. 
+        // We use window.history.back() as a fallback if navigate(-1) is unreliable.
+        if (new URLSearchParams(location.search).get("history") === "open") {
+            if (window.history.length > 1) {
+                navigate(-1);
+            } else {
+                navigate("/Assistant"); // Fallback to Assistant
+            }
+        }
     };
 
     const isDiagram = mode === "diagram";
@@ -470,7 +484,7 @@ Topic: ${prompt}`
                                     <p className="text-[10px] text-slate-600 mt-0.5">{history.length} entries</p>
                                 </div>
                             </div>
-                            <button onClick={() => setHistoryOpen(false)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white transition-all">
+                            <button onClick={closeHistory} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white transition-all">
                                 <X size={14} />
                             </button>
                         </div>
@@ -491,15 +505,29 @@ Topic: ${prompt}`
                                         initial={{ opacity: 0, y: -8 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="group relative p-4 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-orange-500/20 rounded-2xl cursor-pointer transition-all"
-                                        onClick={() => { setPrompt(item.prompt); setMode(item.mode); setHistoryOpen(false); }}
+                                        onClick={() => {
+                                            if (item.mode === "chat") {
+                                                navigate("/Assistant", { state: { prompt: item.prompt } });
+                                                // We also need to trigger the chat in Home.jsx
+                                                window.location.href = `/Assistant?q=${encodeURIComponent(item.prompt)}`;
+                                            } else {
+                                                setPrompt(item.prompt); 
+                                                setMode(item.mode); 
+                                                setHistoryOpen(false);
+                                            }
+                                        }}
                                     >
                                         <div className="flex items-start gap-3">
                                             <div className={cn(
                                                 "mt-0.5 p-1.5 rounded-lg flex-shrink-0",
-                                                item.mode === 'imagine' ? 'bg-orange-500/15 border border-orange-500/20' : 'bg-blue-500/15 border border-blue-500/20'
+                                                item.mode === 'imagine' ? 'bg-orange-500/15 border border-orange-500/20' : 
+                                                item.mode === 'chat' ? 'bg-green-500/15 border border-green-500/20' :
+                                                'bg-blue-500/15 border border-blue-500/20'
                                             )}>
                                                 {item.mode === 'imagine'
                                                     ? <ImageIcon size={12} className="text-orange-400" />
+                                                    : item.mode === 'chat'
+                                                    ? <MessageSquare size={12} className="text-green-400" />
                                                     : <DiagramIcon size={12} className="text-blue-400" />
                                                 }
                                             </div>
@@ -508,10 +536,12 @@ Topic: ${prompt}`
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className={cn(
                                                         "text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full",
-                                                        item.mode === 'imagine' ? 'bg-orange-500/15 text-orange-400' : 'bg-blue-500/15 text-blue-400'
+                                                        item.mode === 'imagine' ? 'bg-orange-500/15 text-orange-400' : 
+                                                        item.mode === 'chat' ? 'bg-green-500/15 text-green-400' :
+                                                        'bg-blue-500/15 text-blue-400'
                                                     )}>{item.mode}</span>
                                                     <span className="text-[9px] text-slate-600">
-                                                        {item.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
                                             </div>
