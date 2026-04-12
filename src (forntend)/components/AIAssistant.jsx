@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, User, Bot, Loader2, RotateCcw, Image as ImageIcon, Mic, MicOff, Volume2, Maximize2, Download, FileText, X } from "lucide-react";
+import { Send, User, Bot, Loader2, RotateCcw, Image as ImageIcon, Mic, MicOff, Volume2, Maximize2, Download, FileText, X, Paperclip } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -438,13 +438,7 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
         <div ref={endOfChatRef} />
       </div>
 
-      {/* Style Shortcuts */}
-      <div className="max-w-3xl mx-auto w-full px-3 md:px-0 flex gap-2 overflow-x-auto pb-2 scrollbar-none relative z-20">
-        <StyleBadge label="Cinematic" onClick={() => setInput(p => p + (p ? ", " : "") + "cinematic lighting, 8k, hyper-detailed")} />
-        <StyleBadge label="Cyberpunk" onClick={() => setInput(p => p + (p ? ", " : "") + "neon cyberpunk aesthetic")} />
-        <StyleBadge label="Fantasy" onClick={() => setInput(p => p + (p ? ", " : "") + "epic fantasy style, oil painting")} />
-        <StyleBadge label="Academic" onClick={() => setInput(p => p + (p ? ", " : "") + "academic style, simple, educational")} />
-      </div>
+
 
       <form onSubmit={sendMessage} className="pb-4 pt-2 px-3 md:px-0 bg-transparent flex-shrink-0 z-10 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
         <div className="max-w-3xl mx-auto w-full relative">
@@ -483,7 +477,7 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
               className="p-2 mb-1 ml-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all shrink-0"
               title="Upload File or Image"
             >
-              <ImageIcon size={20} />
+              <Paperclip size={20} />
             </button>
 
             <button
@@ -562,12 +556,4 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
   );
 }
 
-const StyleBadge = ({ label, onClick }) => (
-  <button 
-    type="button"
-    onClick={onClick} 
-    className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white hover:bg-orange-600/20 hover:border-orange-600/30 transition-all whitespace-nowrap shadow-xl active:scale-95"
-  >
-    {label}
-  </button>
-);
+
