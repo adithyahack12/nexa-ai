@@ -363,7 +363,7 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
 
   return (
     <div className={cn(
-      "flex flex-col w-full max-w-full mx-auto transition-all relative",
+      "flex flex-col w-full max-w-full mx-auto relative",
       fullWidth ? "h-[calc(100vh-120px)]" : "h-[750px] rounded-3xl border border-white/5 bg-black/40 backdrop-blur-3xl shadow-2xl"
     )}>
       {!fullWidth && (
@@ -408,7 +408,7 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
 
       <form onSubmit={sendMessage} className="pb-4 pt-2 px-4 md:px-0 bg-transparent">
         <div className="max-w-3xl mx-auto w-full relative">
-          <div className="bg-[#1f1f1f] border border-white/10 rounded-[28px] p-2 flex items-end gap-2 shadow-2xl transition-all focus-within:border-white/20">
+          <div className="bg-[#1f1f1f] border border-white/10 rounded-[28px] p-2 flex items-end gap-2 shadow-2xl focus-within:border-white/20">
             <button
               type="button"
               onClick={() => document.getElementById('file-upload').click()}
