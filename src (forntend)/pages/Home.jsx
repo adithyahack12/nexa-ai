@@ -1,12 +1,12 @@
 import React, { useState, useRef } from "react";
 import AIAssistant from "@/components/AIAssistant";
 import { Link } from "react-router-dom";
-import { 
-  MessageSquare, 
-  FileText, 
-  Code, 
-  Layout as DiagramIcon, 
-  Settings, 
+import {
+  MessageSquare,
+  FileText,
+  Code,
+  Layout as DiagramIcon,
+  Settings,
   RotateCcw,
   BookOpen,
   ArrowRight,
@@ -64,12 +64,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-slate-200 selection:bg-orange-500/30 selection:text-white flex flex-col relative">
-      
-      <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-32 px-6">
+
+      <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-10 px-6">
         {!chatStarted ? (
           <div className="max-w-4xl w-full flex flex-col items-center text-center animate-in fade-in zoom-in duration-1000">
             <div className="mb-12 opacity-5 pointer-events-none select-none">
-               <span className="text-[120px] font-black tracking-tighter uppercase italic">System 1</span>
+              <span className="text-[120px] font-black tracking-tighter uppercase italic">System 1</span>
             </div>
 
             <div className="space-y-6">
@@ -91,7 +91,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="w-full max-w-5xl h-full animate-in fade-in slide-in-from-bottom-8 duration-700">
-             <AIAssistant fullWidth={true} initialQuery={initialInput} />
+            <AIAssistant fullWidth={true} initialQuery={initialInput} />
           </div>
         )}
       </main>
@@ -101,7 +101,7 @@ export default function Home() {
         <div className="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#020205] via-[#020205]/80 to-transparent">
           <div className="max-w-4xl mx-auto w-full">
             <div className="relative group overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.02] backdrop-blur-3xl shadow-2xl transition-all focus-within:border-orange-500/30 focus-within:ring-4 focus-within:ring-orange-500/5">
-              <textarea 
+              <textarea
                 value={initialInput}
                 onChange={(e) => setInitialInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -111,7 +111,7 @@ export default function Home() {
                 className="w-full bg-transparent border-none outline-none px-10 py-8 text-xl text-white placeholder:text-slate-700 resize-none min-h-[100px] leading-relaxed"
               />
               <div className="absolute right-6 bottom-6 flex items-center gap-4">
-                <button 
+                <button
                   onClick={toggleListening}
                   className={cn(
                     "p-4 transition-all active:scale-95 rounded-2xl border shadow-xl relative",
@@ -121,7 +121,7 @@ export default function Home() {
                 >
                   {isListening ? <Mic size={24} className="animate-bounce" /> : <Mic size={24} />}
                 </button>
-                <button 
+                <button
                   onClick={handleStartChat}
                   disabled={!initialInput.trim()}
                   className="px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-[1.5rem] font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-orange-600/20 group text-lg disabled:opacity-50 disabled:hover:scale-100"
@@ -150,7 +150,7 @@ const NavPill = ({ icon, label, active = false }) => (
 );
 
 const SuggestionPill = ({ label, onClick }) => (
-  <button 
+  <button
     onClick={onClick}
     className="px-6 py-3 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-slate-500 hover:bg-white/10 hover:border-white/20 hover:text-white transition-all active:scale-95"
   >

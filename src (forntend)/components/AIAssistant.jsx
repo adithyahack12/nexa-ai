@@ -132,27 +132,22 @@ const ChatBubble = ({ role, content, onImageClick }) => {
       )}
     >
       <div
-        className={cn(
-          "flex max-w-[90%] items-start gap-3",
-          role === "user" ? "flex-row-reverse" : "flex-row"
-        )}
+        className="flex w-full items-start gap-4 md:gap-6"
       >
         <div
           className={cn(
-            "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg transition-transform hover:scale-110",
+            "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 transition-transform",
             role === "user"
-              ? "bg-slate-700 text-white border border-white/10"
-              : "bg-white text-slate-900 border border-slate-200"
+              ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
+              : "bg-white/10 text-slate-300 border border-white/10"
           )}
         >
-          {role === "user" ? <User size={18} /> : <Bot size={18} />}
+          {role === "user" ? <User size={16} /> : <Bot size={16} />}
         </div>
         <div
           className={cn(
-            "p-5 rounded-3xl text-sm leading-relaxed border backdrop-blur-2xl relative group",
-            role === "user"
-              ? "bg-indigo-600/20 text-indigo-50 border-indigo-500/30 rounded-tr-none shadow-[0_0_20px_rgba(79,70,229,0.1)]"
-              : "bg-white/10 text-slate-100 border-white/10 rounded-tl-none shadow-2xl"
+            "flex-1 text-[15px] leading-7 text-slate-200 break-words overflow-hidden py-1",
+            role === "user" ? "font-medium" : ""
           )}
         >
           {role === "assistant" && (
@@ -363,8 +358,8 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
 
   return (
     <div className={cn(
-      "flex flex-col w-full mx-auto transition-all relative overflow-hidden",
-      fullWidth ? "h-[calc(100vh-280px)]" : "h-[650px] rounded-[2rem] border border-white/10 bg-black/20 shadow-2xl backdrop-blur-xl ring-1 ring-white/10"
+      "flex flex-col w-full max-w-full mx-auto transition-all relative",
+      fullWidth ? "h-[calc(100vh-120px)]" : "h-[750px] rounded-3xl border border-white/5 bg-black/40 backdrop-blur-3xl shadow-2xl"
     )}>
       {!fullWidth && (
         <div className="p-5 border-b border-white/10 bg-white/5 flex items-center justify-between">
@@ -381,7 +376,8 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
         </div>
       )}
 
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 md:px-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="max-w-3xl mx-auto w-full py-8 md:py-12">
         {messages.length === 0 && !streamingText && (
           <div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
             <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl flex items-center justify-center mb-6 text-white shadow-2xl transition-transform hover:rotate-6 duration-300">
@@ -401,52 +397,70 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
             <div className="h-10 w-24 bg-white/5 rounded-2xl border border-white/5" />
           </div>
         )}
+        </div>
         <div ref={endOfChatRef} />
       </div>
 
-      <form onSubmit={sendMessage} className="p-6 bg-white/5 border-t border-white/10 flex flex-col gap-4">
-        <div className="flex items-center gap-4">
-          <input
-            type="file"
-            id="file-upload"
-            className="hidden"
-            onChange={(e) => alert(`File selected: ${e.target.files[0]?.name}`)}
-          />
-          <input
-            type="file"
-            id="image-upload"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => alert(`Image selected: ${e.target.files[0]?.name}`)}
-          />
+      <form onSubmit={sendMessage} className="pb-4 pt-2 px-4 md:px-0 bg-transparent">
+        <div className="max-w-3xl mx-auto w-full relative">
+          <div className="bg-[#1f1f1f] border border-white/10 rounded-[28px] p-2 flex items-end gap-2 shadow-2xl transition-all focus-within:border-white/20">
+            <button
+              type="button"
+              onClick={() => document.getElementById('file-upload').click()}
+              className="p-3 mb-0.5 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-all active:scale-95 shrink-0"
+              title="Upload File"
+            >
+              <RotateCcw size={20} className="rotate-45" />
+            </button>
 
-          <button
-            type="button"
-            onClick={() => document.getElementById('file-upload').click()}
-            className="p-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg"
-            title="Upload File"
-          >
-            <RotateCcw size={20} className="rotate-45" /> {/* Using rotateccw as a clip icon substitute if paperclip not in scope? wait No I have send icon etc. Let me use Lucide Clip if available */}
-            <Send size={20} className="rotate-[-45deg]" /> {/* Hacky paperclip if needed, but let's check Lucide */}
-          </button>
+            <button
+              type="button"
+              onClick={() => document.getElementById('image-upload').click()}
+              className="p-3 mb-0.5 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-all active:scale-95 shrink-0"
+              title="Upload Image"
+            >
+              <ImageIcon size={20} />
+            </button>
 
-          <button
-            type="button"
-            onClick={() => document.getElementById('image-upload').click()}
-            className="p-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg"
-            title="Upload Image"
-          >
-            <ImageIcon size={20} />
-          </button>
+            <textarea 
+              value={input} 
+              onChange={(e) => setInput(e.target.value)} 
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} 
+              placeholder="Ask anything..." 
+              rows={1} 
+              disabled={isLoading} 
+              className="flex-1 bg-transparent border-none outline-none py-3 px-2 text-[15px] text-white placeholder:text-slate-500 resize-none max-h-[200px] overflow-y-auto scrollbar-none" 
+            />
 
-          <button type="button" onClick={toggleListening} className={cn("p-3 rounded-xl border transition-all active:scale-95 shadow-lg", isListening ? "bg-red-500/20 border-red-500/50 text-red-500 animate-pulse" : "bg-white/10 border-white/10 text-white hover:bg-white/20")}>
-            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
-          </button>
+            <div className="flex items-center gap-1 mb-0.5 mr-1">
+              <button 
+                type="button" 
+                onClick={toggleListening} 
+                className={cn(
+                  "p-3 rounded-full transition-all active:scale-95",
+                  isListening ? "bg-red-500/20 text-red-500" : "text-slate-400 hover:text-white hover:bg-white/5"
+                )}
+              >
+                {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+              </button>
 
-          <div className="relative flex-1">
-            <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder={isListening ? "Listening..." : "How can I help you?"} rows={1} disabled={isLoading} className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500/40 outline-none resize-none transition-all pr-14" />
-            <button type="submit" disabled={isLoading || !input.trim()} className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 text-white rounded-xl hover:scale-105 active:scale-90 transition-all shadow-xl flex items-center justify-center border border-white/20"><Send size={18} /></button>
+              <button 
+                type="submit" 
+                disabled={isLoading || !input.trim()} 
+                className={cn(
+                  "p-3 rounded-full transition-all flex items-center justify-center",
+                  isLoading || !input.trim() 
+                    ? "text-slate-700 cursor-not-allowed" 
+                    : "bg-white text-black hover:bg-slate-200 active:scale-90"
+                )}
+              >
+                <Send size={18} fill="currentColor" />
+              </button>
+            </div>
           </div>
+          <p className="text-center mt-3 text-[11px] text-slate-500">
+            NexaAI can make mistakes. Check important info.
+          </p>
         </div>
       </form>
 
