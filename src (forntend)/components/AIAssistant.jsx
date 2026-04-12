@@ -407,8 +407,8 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
       </div>
 
       <form onSubmit={sendMessage} className="pb-4 pt-2 px-4 md:px-0 bg-transparent">
-        <div className="max-w-3xl mx-auto w-full relative">
-          <div className="bg-[#1f1f1f] border border-white/10 rounded-[28px] p-2 flex items-end gap-2 shadow-2xl focus-within:border-white/20">
+        <div className="max-w-3xl mx-auto w-[94vw] md:w-full relative px-2 md:px-0">
+          <div className="bg-[#1f1f1f] border border-white/10 rounded-[28px] p-1.5 md:p-2 flex items-end gap-1 md:gap-2 shadow-2xl focus-within:border-white/20">
             <button
               type="button"
               onClick={() => document.getElementById('file-upload').click()}
@@ -434,7 +434,7 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
               placeholder="Ask anything..." 
               rows={1} 
               disabled={isLoading} 
-              className="flex-1 bg-transparent border-none outline-none py-3 px-2 text-[15px] text-white placeholder:text-slate-500 resize-none max-h-[200px] overflow-y-auto scrollbar-none" 
+              className="flex-1 bg-transparent border-none outline-none py-3 px-1 md:px-2 text-[14px] md:text-[15px] text-white placeholder:text-slate-500 resize-none max-h-[150px] md:max-h-[200px] overflow-y-auto scrollbar-none" 
             />
 
             <div className="flex items-center gap-1 mb-0.5 mr-1">
@@ -442,11 +442,11 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
                 type="button" 
                 onClick={toggleListening} 
                 className={cn(
-                  "p-3 rounded-full transition-all active:scale-95",
+                  "p-2 md:p-3 rounded-full transition-all active:scale-95",
                   isListening ? "bg-red-500/20 text-red-500" : "text-slate-400 hover:text-white hover:bg-white/5"
                 )}
               >
-                {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+                {isListening ? <MicOff size={18} /> : <Mic size={18} />}
               </button>
 
               <button 

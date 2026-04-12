@@ -17,7 +17,7 @@ const SHARED_NOTES = [
     { title: "History Study Guide", author: "Sarah", date: "Yesterday", type: "LINK" }
 ];
 
-const ROOMS = [
+const DEFAULT_ROOMS = [
     { id: "general", name: "General Intelligence", agents: ["researcher", "coder", "creative"] },
     { id: "student-circle", name: "Student Study Circle", agents: ["tutor", "researcher"], isGroup: true },
     { id: "dev-hub", name: "Developer Nexus", agents: ["coder"] },
@@ -25,8 +25,48 @@ const ROOMS = [
 ];
 
 export default function ChatRooms() {
-    const [selectedRoom, setSelectedRoom] = useState(ROOMS[0]);
-    const [selectedAgent, setSelectedAgent] = useState(AGENTS.find(a => a.id === selectedRoom.agents[0]));
+    const [rooms, setRooms] = useState(() => {
+        try {
+            const saved = localStorage.getItem("nexaRooms");
+            return saved ? JSON.parse(saved) : DEFAULT_ROOMS;
+        } catch { return DEFAULT_ROOMS; }
+    });
+    const [selectedRoom, setSelectedRoom] = useState(rooms[0]);
+    const [selectedAgent, setSelectedAgent] = useState(AGENTS.find(a => a.id === rooms[0].agents[0]));
+    const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+    const [newRoomData, setNewRoomData] = useState({ name: "", agents: ["tutor"] });
+
+    // Persist rooms to localStorage
+    React.useEffect(() => {
+        localStorage.setItem("nexaRooms", JSON.stringify(rooms));
+    }, [rooms]);
+
+    const handleCreateRoom = (e) => {
+        e.preventDefault();
+        if (!newRoomData.name.trim()) return;
+
+        const newRoom = {
+            id: `room-${Date.now()}`,
+            name: newRoomData.name,
+            agents: newRoomData.agents,
+            isGroup: true
+        };
+
+        setRooms([...rooms, newRoom]);
+        setIsCreatingRoom(false);
+        setNewRoomData({ name: "", agents: ["tutor"] });
+    };
+
+    const deleteRoom = (id, e) => {
+        e.stopPropagation();
+        if (id === "general") return; // Keep general
+        const updated = rooms.filter(r => r.id !== id);
+        setRooms(updated);
+        if (selectedRoom.id === id) {
+            setSelectedRoom(updated[0]);
+            setSelectedAgent(AGENTS.find(a => a.id === updated[0].agents[0]));
+        }
+    };
 
     return (
         <div className="h-screen bg-[#030303] text-slate-200 flex flex-col relative overflow-hidden">
@@ -37,27 +77,39 @@ export default function ChatRooms() {
                     <div className="p-6">
                     <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Neural Channels</h2>
                     <div className="space-y-1">
-                        {ROOMS.map(room => (
-                            <button
-                                key={room.id}
-                                onClick={() => {
-                                    setSelectedRoom(room);
-                                    setSelectedAgent(AGENTS.find(a => a.id === room.agents[0]));
-                                }}
-                                className={cn(
-                                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all group",
-                                    selectedRoom.id === room.id ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20" : "text-slate-500 hover:bg-white/5 hover:text-white"
+                        {rooms.map(room => (
+                            <div key={room.id} className="relative group">
+                                <button
+                                    onClick={() => {
+                                        setSelectedRoom(room);
+                                        setSelectedAgent(AGENTS.find(a => a.id === room.agents[0]));
+                                    }}
+                                    className={cn(
+                                        "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all",
+                                        selectedRoom.id === room.id ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20" : "text-slate-500 hover:bg-white/5 hover:text-white"
+                                    )}
+                                >
+                                    <Hash size={18} className={selectedRoom.id === room.id ? "text-white" : "text-slate-700 group-hover:text-slate-400"} />
+                                    {room.name}
+                                </button>
+                                {room.id !== "general" && (
+                                    <button 
+                                        onClick={(e) => deleteRoom(room.id, e)}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-700 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all"
+                                    >
+                                        <Plus size={14} className="rotate-45" />
+                                    </button>
                                 )}
-                            >
-                                <Hash size={18} className={selectedRoom.id === room.id ? "text-white" : "text-slate-700 group-hover:text-slate-400"} />
-                                {room.name}
-                            </button>
+                            </div>
                         ))}
                     </div>
                 </div>
 
                 <div className="mt-auto p-6 border-t border-white/5">
-                    <button className="w-full py-4 border border-dashed border-white/10 rounded-3xl text-xs font-medium text-slate-600 hover:border-orange-500/50 hover:text-orange-500 transition-all flex items-center justify-center gap-2">
+                    <button 
+                        onClick={() => setIsCreatingRoom(true)}
+                        className="w-full py-4 border border-dashed border-white/10 rounded-3xl text-xs font-medium text-slate-600 hover:border-orange-500/50 hover:text-orange-500 transition-all flex items-center justify-center gap-2"
+                    >
                         <Plus size={16} /> Create Private Node
                     </button>
                 </div>
@@ -133,6 +185,79 @@ export default function ChatRooms() {
                     </div>
                 </div>
             </div>
+
+            {/* CREATE ROOM MODAL */}
+            {isCreatingRoom && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setIsCreatingRoom(false)} />
+                    <form 
+                        onSubmit={handleCreateRoom}
+                        className="relative w-full max-w-lg bg-[#111] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl animate-in fade-in zoom-in duration-300"
+                    >
+                        <h2 className="text-2xl font-bold text-white mb-6 italic">Initialize Neural Channel</h2>
+                        
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-600 mb-2">Channel Name</label>
+                                <input 
+                                    autoFocus
+                                    type="text" 
+                                    required
+                                    value={newRoomData.name}
+                                    onChange={e => setNewRoomData({...newRoomData, name: e.target.value})}
+                                    placeholder="e.g. Physics Study Group..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-orange-500/50 transition-all font-medium"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-600 mb-2">Select Active Agents</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {AGENTS.map(agent => (
+                                        <button
+                                            key={agent.id}
+                                            type="button"
+                                            onClick={() => {
+                                                const current = newRoomData.agents;
+                                                setNewRoomData({
+                                                    ...newRoomData,
+                                                    agents: current.includes(agent.id) 
+                                                        ? current.filter(id => id !== agent.id)
+                                                        : [...current, agent.id]
+                                                });
+                                            }}
+                                            className={cn(
+                                                "p-3 rounded-xl border text-[10px] font-bold transition-all flex items-center gap-2",
+                                                newRoomData.agents.includes(agent.id) ? "bg-orange-500/20 border-orange-500/50 text-white" : "bg-white/5 border-white/5 text-slate-500"
+                                            )}
+                                        >
+                                            <span className="text-sm">{agent.icon}</span>
+                                            {agent.name.split(' ')[0]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-10 flex gap-4">
+                            <button 
+                                type="button"
+                                onClick={() => setIsCreatingRoom(false)}
+                                className="flex-1 py-4 bg-white/5 text-slate-500 font-bold rounded-2xl hover:bg-white/10 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit"
+                                disabled={newRoomData.agents.length === 0}
+                                className="flex-1 py-4 bg-orange-600 text-white font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-orange-600/30 disabled:opacity-50"
+                            >
+                                Create Channel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
         </div>
     );
 }

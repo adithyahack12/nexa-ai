@@ -470,7 +470,7 @@ Topic: ${prompt}`
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: 320, opacity: 0 }}
                         transition={{ type: 'spring', stiffness: 280, damping: 28 }}
-                        className="absolute top-24 right-0 h-[calc(100%-6rem)] w-80 z-30 flex flex-col border-l border-white/5 shadow-2xl"
+                        className="absolute top-24 right-0 h-[calc(100%-6rem)] w-[90vw] md:w-80 z-30 flex flex-col border-l border-white/5 shadow-2xl"
                         style={{ background: 'linear-gradient(180deg, rgba(10,5,0,0.97) 0%, rgba(20,10,0,0.95) 100%)', backdropFilter: 'blur(24px)', borderRadius: '2rem 0 0 2rem' }}
                     >
                         {/* Header */}
