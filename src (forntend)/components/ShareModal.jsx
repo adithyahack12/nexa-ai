@@ -71,7 +71,7 @@ export default function ShareModal({ isOpen, onClose, url, title }) {
                         
                         <p className="text-sm text-slate-400 mb-6">{title}</p>
 
-                        <div className="grid grid-cols-4 gap-4 mb-8">
+                        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-8">
                             {shareLinks.map(link => (
                                 <a 
                                     key={link.name}
