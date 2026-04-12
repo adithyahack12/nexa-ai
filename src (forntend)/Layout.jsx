@@ -58,7 +58,13 @@ export default function Layout({ children, currentPageName }) {
                     <div className="w-8 h-8 bg-gradient-to-tr from-orange-500 to-yellow-400 rounded-lg flex items-center justify-center">
                         <Globe className="text-white" size={18} />
                     </div>
-                    <span className="text-lg font-bold text-white tracking-tight">NexaAI</span>
+                    <div>
+                        <span className="text-lg font-bold text-white tracking-tight leading-none block">NexaAI</span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
+                            <a href="https://nexa-ai-1-st64.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[6px] font-black text-green-500/80 uppercase tracking-tighter">Render Live</a>
+                        </div>
+                    </div>
                 </Link>
                 <div className="flex items-center gap-2">
                     <button onClick={() => setShareOpen(true)} className="p-2 text-blue-400 rounded-lg bg-blue-500/5 border border-blue-500/10 active:scale-90 transition-all">

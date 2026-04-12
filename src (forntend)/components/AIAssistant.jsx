@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, User, Bot, Loader2, RotateCcw, Image as ImageIcon, Mic, MicOff, Volume2, Maximize2, Download } from "lucide-react";
+import { Send, User, Bot, Loader2, RotateCcw, Image as ImageIcon, Mic, MicOff, Volume2, Maximize2, Download, FileText, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -225,6 +225,9 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
   const [streamingText, setStreamingText] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const recognitionRef = useRef(null);
   const endOfChatRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -242,7 +245,8 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chat", {
+      const apiUrl = import.meta.env.MODE === "development" ? "/api/chat" : "https://nexa-ai-1-st64.onrender.com/api/chat";
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -321,7 +325,8 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
       const newEntry = { id: Date.now(), prompt: text, mode: "chat", time: new Date() };
       localStorage.setItem("nexaHistory", JSON.stringify([newEntry, ...savedHistory].slice(0, 50)));
 
-      const response = await fetch("/api/chat", {
+      const apiUrl = import.meta.env.MODE === "development" ? "/api/chat" : "https://nexa-ai-1-st64.onrender.com/api/chat";
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -349,7 +354,28 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
       ]);
     } finally {
       setIsLoading(false);
+      setAttachedFile(null);
+      setFilePreview(null);
     }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setAttachedFile(file);
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => setFilePreview(e.target.result);
+      reader.readAsDataURL(file);
+    } else {
+      setFilePreview(null);
+    }
+  };
+
+  const removeFile = () => {
+    setAttachedFile(null);
+    setFilePreview(null);
   };
 
   const clearChat = () => {
@@ -412,16 +438,61 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
         <div ref={endOfChatRef} />
       </div>
 
+      {/* Style Shortcuts */}
+      <div className="max-w-3xl mx-auto w-full px-3 md:px-0 flex gap-2 overflow-x-auto pb-2 scrollbar-none relative z-20">
+        <StyleBadge label="Cinematic" onClick={() => setInput(p => p + (p ? ", " : "") + "cinematic lighting, 8k, hyper-detailed")} />
+        <StyleBadge label="Cyberpunk" onClick={() => setInput(p => p + (p ? ", " : "") + "neon cyberpunk aesthetic")} />
+        <StyleBadge label="Fantasy" onClick={() => setInput(p => p + (p ? ", " : "") + "epic fantasy style, oil painting")} />
+        <StyleBadge label="Academic" onClick={() => setInput(p => p + (p ? ", " : "") + "academic style, simple, educational")} />
+      </div>
+
       <form onSubmit={sendMessage} className="pb-4 pt-2 px-3 md:px-0 bg-transparent flex-shrink-0 z-10 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
         <div className="max-w-3xl mx-auto w-full relative">
+          
+          {/* File Preview Area */}
+          <AnimatePresence>
+            {attachedFile && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute bottom-full mb-4 left-0 p-2 bg-[#2f2f2f] border border-white/10 rounded-2xl flex items-center gap-3 shadow-2xl z-20">
+                {filePreview ? (
+                  <img src={filePreview} className="w-12 h-12 rounded-lg object-cover border border-white/10" alt="Preview" />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center border border-white/10"><FileText size={20} className="text-slate-400" /></div>
+                )}
+                <div className="flex flex-col pr-4">
+                  <span className="text-[10px] font-bold text-white max-w-[120px] truncate">{attachedFile.name}</span>
+                  <span className="text-[8px] text-slate-500 uppercase">{(attachedFile.size / 1024).toFixed(1)} KB</span>
+                </div>
+                <button type="button" onClick={removeFile} className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-all"><X size={12} /></button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="bg-[#2f2f2f] md:border md:border-white/10 rounded-[28px] p-1 md:p-1.5 flex items-end gap-1 shadow-[0_0_20px_rgba(0,0,0,0.5)] focus-within:bg-[#3f3f3f] transition-colors duration-200 min-h-[50px]">
             
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              className="hidden" 
+              accept="image/*,.pdf,.doc,.docx,.txt"
+            />
+
             <button
               type="button"
+              onClick={() => fileInputRef.current?.click()}
               className="p-2 mb-1 ml-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all shrink-0"
               title="Upload File or Image"
             >
-              <RotateCcw size={20} className="rotate-45" />
+              <ImageIcon size={20} />
+            </button>
+
+            <button
+              type="button"
+              onClick={clearChat}
+              className="p-2 mb-1 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all shrink-0"
+              title="Reset Chat"
+            >
+              <RotateCcw size={20} />
             </button>
 
             <textarea 
@@ -490,3 +561,13 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
     </div>
   );
 }
+
+const StyleBadge = ({ label, onClick }) => (
+  <button 
+    type="button"
+    onClick={onClick} 
+    className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white hover:bg-orange-600/20 hover:border-orange-600/30 transition-all whitespace-nowrap shadow-xl active:scale-95"
+  >
+    {label}
+  </button>
+);

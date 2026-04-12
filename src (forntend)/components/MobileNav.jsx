@@ -8,15 +8,15 @@ export default function MobileNav({ navItems, currentPageName, historyCount, onH
             {navItems.filter(item => item.name !== "History").map((item) => {
                 const isActive = currentPageName === item.name || (item.name === "Home" && currentPageName === "Landing");
                 const isHistory = item.name === "History";
-                
+
                 return (
                     <Link
                         key={item.name}
                         to={item.path}
                         onClick={(e) => {
                             if (item.onClick) {
-                              e.preventDefault();
-                              item.onClick();
+                                e.preventDefault();
+                                item.onClick();
                             }
                         }}
                         className={cn(

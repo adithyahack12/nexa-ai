@@ -141,7 +141,8 @@ export default function Canvas() {
         setIsLoading(true);
         addToHistoryLocally(prompt, "diagram");
         try {
-            const res = await fetch("/api/chat", {
+            const apiUrl = import.meta.env.MODE === "development" ? "/api/chat" : "https://nexa-ai-1-st64.onrender.com/api/chat";
+            const res = await fetch(apiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -207,6 +208,15 @@ export default function Canvas() {
                             </div>
                         )}
                     </div>
+
+                    {/* Quality Badges */}
+                    {mode === "imagine" && (
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 md:-translate-x-0 md:left-auto md:top-10 md:right-10 flex flex-row md:flex-col gap-2 md:gap-3 z-30 flex-wrap justify-center w-full max-w-[90%] md:w-auto mt-12 md:mt-0">
+                            <QualityBadge label="Cinematic" onClick={() => setPrompt(p => p + (p ? ", " : "") + "cinematic lighting, 8k, hyper-detailed")} />
+                            <QualityBadge label="Cyberpunk" onClick={() => setPrompt(p => p + (p ? ", " : "") + "neon cyberpunk aesthetic")} />
+                            <QualityBadge label="Fantasy" onClick={() => setPrompt(p => p + (p ? ", " : "") + "epic fantasy style, oil painting")} />
+                        </div>
+                    )}
                 </div>
 
                 {/* Input area */}
@@ -247,4 +257,10 @@ const ToolIcon = ({ icon, active = false, className = "", onClick = () => { }, t
         </button>
         {title && <div className="absolute left-full ml-4 px-3 py-1 bg-orange-600 text-[10px] font-black text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all uppercase whitespace-nowrap z-50">{title}</div>}
     </div>
+);
+
+const QualityBadge = ({ label, onClick = () => {} }) => (
+    <button onClick={onClick} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] text-slate-500 hover:text-white hover:bg-orange-500/10 hover:border-orange-500/30 transition-all shadow-xl">
+        {label}
+    </button>
 );

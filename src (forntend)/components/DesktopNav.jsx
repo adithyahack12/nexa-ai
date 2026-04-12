@@ -13,7 +13,11 @@ export default function DesktopNav({ navItems, currentPageName, historyCount, on
                 </div>
                 <div>
                     <h1 className="text-xl font-bold tracking-tight text-white leading-none">NexaAI</h1>
-                    <p className="text-[8px] font-semibold text-slate-500 uppercase tracking-widest mt-1">Quantum Intelligence</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-[8px] font-semibold text-slate-500 uppercase tracking-widest">Quantum Intelligence</p>
+                        <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
+                        <a href="https://nexa-ai-1-st64.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-[7px] font-bold text-green-500/70 hover:text-green-400 uppercase tracking-tighter transition-colors">Render Live</a>
+                    </div>
                 </div>
             </Link>
 
