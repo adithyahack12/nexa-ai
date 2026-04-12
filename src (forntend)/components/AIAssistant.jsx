@@ -412,64 +412,60 @@ export default function AIAssistant({ fullWidth = false, initialQuery = "" }) {
         <div ref={endOfChatRef} />
       </div>
 
-      <form onSubmit={sendMessage} className="pb-4 pt-2 px-4 md:px-0 bg-transparent">
-        <div className="max-w-3xl mx-auto w-[94vw] md:w-full relative px-2 md:px-0">
-          <div className="bg-[#1f1f1f] border border-white/10 rounded-[28px] p-1.5 md:p-2 flex items-end gap-1 md:gap-2 shadow-2xl focus-within:border-white/20">
+      <form onSubmit={sendMessage} className="pb-4 pt-2 px-3 md:px-0 bg-transparent flex-shrink-0 z-10 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
+        <div className="max-w-3xl mx-auto w-full relative">
+          <div className="bg-[#2f2f2f] md:border md:border-white/10 rounded-[28px] p-1 md:p-1.5 flex items-end gap-1 shadow-[0_0_20px_rgba(0,0,0,0.5)] focus-within:bg-[#3f3f3f] transition-colors duration-200 min-h-[50px]">
+            
             <button
               type="button"
-              onClick={() => document.getElementById('file-upload').click()}
-              className="p-3 mb-0.5 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-all active:scale-95 shrink-0"
-              title="Upload File"
+              className="p-2 mb-1 ml-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all shrink-0"
+              title="Upload File or Image"
             >
               <RotateCcw size={20} className="rotate-45" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => document.getElementById('image-upload').click()}
-              className="p-3 mb-0.5 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-all active:scale-95 shrink-0"
-              title="Upload Image"
-            >
-              <ImageIcon size={20} />
             </button>
 
             <textarea 
               value={input} 
               onChange={(e) => setInput(e.target.value)} 
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} 
-              placeholder="Ask anything..." 
+              placeholder="Message NexaAI..." 
               rows={1} 
               disabled={isLoading} 
-              className="flex-1 bg-transparent border-none outline-none py-3 px-1 md:px-2 text-[14px] md:text-[15px] text-white placeholder:text-slate-500 resize-none max-h-[150px] md:max-h-[200px] overflow-y-auto scrollbar-none" 
+              className="flex-1 bg-transparent border-none outline-none py-3.5 px-2 text-[16px] md:text-[15px] text-white placeholder:text-[#ababab] resize-none max-h-[120px] md:max-h-[200px] overflow-y-auto scrollbar-none leading-relaxed" 
             />
 
-            <div className="flex items-center gap-1 mb-0.5 mr-1">
-              <button 
-                type="button" 
-                onClick={toggleListening} 
-                className={cn(
-                  "p-2 md:p-3 rounded-full transition-all active:scale-95",
-                  isListening ? "bg-red-500/20 text-red-500" : "text-slate-400 hover:text-white hover:bg-white/5"
-                )}
-              >
-                {isListening ? <MicOff size={18} /> : <Mic size={18} />}
-              </button>
+            <div className="flex items-center gap-1 mb-1 mr-1">
+              {isListening ? (
+                <button 
+                  type="button" 
+                  onClick={toggleListening} 
+                  className="p-2 rounded-full transition-all shrink-0 bg-red-500/20 text-red-500"
+                >
+                  <MicOff size={20} className="animate-pulse" />
+                </button>
+              ) : !input.trim() ? (
+                <button 
+                  type="button" 
+                  onClick={toggleListening} 
+                  className="p-2 rounded-full transition-all shrink-0 text-slate-400 hover:text-white"
+                >
+                  <Mic size={20} />
+                </button>
+              ) : null}
 
               <button 
                 type="submit" 
                 disabled={isLoading || !input.trim()} 
                 className={cn(
-                  "p-3 rounded-full transition-all flex items-center justify-center",
-                  isLoading || !input.trim() 
-                    ? "text-slate-700 cursor-not-allowed" 
-                    : "bg-white text-black hover:bg-slate-200 active:scale-90"
+                  "p-2 rounded-full transition-all flex items-center justify-center pointer-events-auto shrink-0",
+                  input.trim() && !isLoading ? "bg-white text-black" : "hidden"
                 )}
               >
-                <Send size={18} fill="currentColor" />
+                <Send size={18} fill="currentColor" className="ml-[1px] mt-[1px]" />
               </button>
             </div>
           </div>
-          <p className="text-center mt-3 text-[11px] text-slate-500">
+          <p className="hidden md:block text-center mt-3 text-[11px] text-slate-500">
             NexaAI can make mistakes. Check important info.
           </p>
         </div>
