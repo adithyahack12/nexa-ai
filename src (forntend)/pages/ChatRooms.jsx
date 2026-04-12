@@ -71,14 +71,14 @@ export default function ChatRooms() {
     return (
         <div className="h-screen bg-[#030303] text-slate-200 flex flex-col relative overflow-hidden">
             
-            <div className="flex flex-1 pt-20 overflow-hidden">
-                {/* Sidebar: Rooms */}
-                <div className="w-72 border-r border-white/5 bg-black/40 backdrop-blur-3xl flex flex-col">
-                    <div className="p-6">
-                    <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Neural Channels</h2>
-                    <div className="space-y-1">
+            <div className="flex flex-col md:flex-row flex-1 pt-20 md:pt-20 overflow-hidden pb-20 md:pb-0">
+                {/* Timeline/Rooms: Horizontal Slide on Mobile, Vertical on Desktop */}
+                <div className="w-full md:w-72 border-b md:border-b-0 md:border-r border-white/5 bg-black/40 backdrop-blur-3xl flex flex-col shrink-0 z-20">
+                    <div className="p-4 md:p-6 flex flex-row md:flex-col gap-4 overflow-x-auto md:overflow-y-auto scrollbar-none items-center md:items-stretch">
+                    <h2 className="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-widest shrink-0 hidden md:block mb-2">Neural Channels</h2>
+                    <div className="flex flex-row md:flex-col gap-2 md:gap-1 w-max md:w-auto">
                         {rooms.map(room => (
-                            <div key={room.id} className="relative group">
+                            <div key={room.id} className="relative group shrink-0">
                                 <button
                                     onClick={() => {
                                         setSelectedRoom(room);
@@ -105,7 +105,7 @@ export default function ChatRooms() {
                     </div>
                 </div>
 
-                <div className="mt-auto p-6 border-t border-white/5">
+                <div className="mt-auto p-4 md:p-6 border-t border-white/5 hidden md:block">
                     <button 
                         onClick={() => setIsCreatingRoom(true)}
                         className="w-full py-4 border border-dashed border-white/10 rounded-3xl text-xs font-medium text-slate-600 hover:border-orange-500/50 hover:text-orange-500 transition-all flex items-center justify-center gap-2"
@@ -118,10 +118,10 @@ export default function ChatRooms() {
                 {/* Main Area: Agents & Chat */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Agent Selector */}
-                    <div className="p-4 bg-white/[0.02] border-b border-white/5 flex items-center gap-4 overflow-x-auto min-h-[73px]">
-                        <div className="flex items-center gap-2 px-4 py-1 border-r border-white/10 mr-2 shrink-0">
-                            <Users size={16} className="text-slate-600" />
-                            <span className="text-[10px] font-semibold text-slate-500 uppercase">Agents Active:</span>
+                    <div className="p-3 md:p-4 bg-white/[0.02] border-b border-white/5 flex items-center gap-3 overflow-x-auto min-h-[65px] scrollbar-none shadow-sm z-10 shrink-0">
+                        <div className="flex items-center gap-2 px-3 py-1 border-r border-white/10 mr-1 shrink-0">
+                            <Users size={14} className="text-slate-600" />
+                            <span className="text-[9px] md:text-[10px] font-semibold text-slate-500 uppercase">Agents Active:</span>
                         </div>
                         {selectedRoom.agents.map(agentId => {
                             const agent = AGENTS.find(a => a.id === agentId);
@@ -130,22 +130,28 @@ export default function ChatRooms() {
                                     key={agentId}
                                     onClick={() => setSelectedAgent(agent)}
                                     className={cn(
-                                        "flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap border shrink-0",
+                                        "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[11px] md:text-xs font-medium transition-all whitespace-nowrap border shrink-0",
                                         selectedAgent.id === agentId 
                                             ? "bg-white/10 border-white/20 text-white shadow-xl" 
                                             : "bg-transparent border-transparent text-slate-500 hover:text-white"
                                     )}
                                 >
-                                    <span className="text-lg">{agent.icon}</span>
+                                    <span className="text-sm md:text-lg">{agent.icon}</span>
                                     {agent.name}
                                 </button>
                             );
                         })}
+                        <button 
+                             onClick={() => setIsCreatingRoom(true)}
+                             className="md:hidden ml-auto flex items-center justify-center p-2 rounded-full border border-dashed border-white/20 text-slate-500 hover:text-orange-400 shrink-0 shadow-lg"
+                        >
+                            <Plus size={16} />
+                        </button>
                     </div>
 
                     {/* Chat Display */}
-                    <div className="flex-1 p-6 overflow-hidden flex">
-                        <div className="flex-1 overflow-hidden flex flex-col">
+                    <div className="flex-1 p-0 md:p-6 overflow-hidden flex relative bg-[#0a0a0a] md:bg-transparent">
+                        <div className="flex-1 overflow-hidden flex flex-col w-full h-full">
                             <AIAssistant 
                                 fullWidth={true} 
                                 key={`${selectedRoom.id}-${selectedAgent.id}`} 
