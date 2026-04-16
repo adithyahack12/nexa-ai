@@ -38,7 +38,10 @@ const SHARE_PLATFORMS = [
 export default function ShareModal({ isOpen, onClose, url, title }) {
     const [copied, setCopied] = React.useState(false);
 
-    const fullUrl = url.startsWith('http') ? url : window.location.origin + url;
+    // Safely compute fullUrl only when url is available
+    const fullUrl = url
+        ? (url.startsWith('http') ? url : window.location.origin + url)
+        : window.location.href;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(fullUrl);
@@ -50,12 +53,12 @@ export default function ShareModal({ isOpen, onClose, url, title }) {
         <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-black/90 backdrop-blur-md" 
-                        onClick={onClose} 
+                        className="absolute inset-0 bg-black/90 backdrop-blur-md"
+                        onClick={onClose}
                     />
-                    <motion.div 
+                    <motion.div
                         initial={{ scale: 0.9, opacity: 0, y: 30 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -71,23 +74,23 @@ export default function ShareModal({ isOpen, onClose, url, title }) {
                                 <X size={20} />
                             </button>
                         </div>
-                        
+
                         {/* Content Area */}
                         <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 mb-8 text-center italic text-sm text-slate-300">
-                           "{title}"
+                            "{title}"
                         </div>
 
                         {/* Force Grid Layout */}
                         <div className="flex flex-wrap justify-center gap-5 mb-10 relative z-10">
                             {SHARE_PLATFORMS.map((platform) => (
-                                <a 
+                                <a
                                     key={platform.name}
                                     href={platform.getHref(fullUrl, title)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex flex-col items-center gap-3 transition-transform hover:-translate-y-1 active:scale-95 group"
                                 >
-                                    <div 
+                                    <div
                                         className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-2xl"
                                         style={{ background: platform.color }}
                                     >
@@ -105,7 +108,7 @@ export default function ShareModal({ isOpen, onClose, url, title }) {
                             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 mb-3 px-1">Quick Link</p>
                             <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-1.5">
                                 <div className="flex-1 truncate text-xs text-slate-400 px-3 font-mono">{fullUrl}</div>
-                                <button 
+                                <button
                                     onClick={handleCopy}
                                     className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${copied ? 'bg-green-600 text-white' : 'bg-white text-black'}`}
                                 >
