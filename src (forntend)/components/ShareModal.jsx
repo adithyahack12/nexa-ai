@@ -41,9 +41,10 @@ export default function ShareModal({ isOpen, onClose, url, title }) {
     // Safely compute fullUrl only when url is available
     const fullUrl = url
         ? (url.startsWith('http') ? url : window.location.origin + url)
-        : window.location.href;
+        : (typeof window !== 'undefined' ? window.location.href : '');
 
     const handleCopy = () => {
+        if (!fullUrl) return;
         navigator.clipboard.writeText(fullUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);

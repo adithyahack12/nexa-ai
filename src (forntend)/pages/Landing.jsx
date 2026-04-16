@@ -268,7 +268,7 @@ export default function Landing() {
       <ShareModal 
         isOpen={isShareModalOpen} 
         onClose={() => setIsShareModalOpen(false)} 
-        url="https://nexa-ai-1-st64.onrender.com/"
+        url={window.location.origin}
         title="Check out NexaAI: Intelligence without boundaries. Everything is free — analyze, visualize, and generate in real-time."
       />
     </div>

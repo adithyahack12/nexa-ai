@@ -86,16 +86,16 @@ export default function Layout({ children, currentPageName }) {
 
             {/* GLOBAL HISTORY SIDEBAR */}
             <HistorySidebar isOpen={historyOpen} onClose={() => setHistoryOpen(false)} />
-
-            {/* GLOBAL SHARE MODAL */}
-            <ShareModal 
-                isOpen={shareOpen} 
-                onClose={() => setShareOpen(false)} 
-                url="https://nexa-ai-1-st64.onrender.com/"
-                title="Check out NexaAI: Everything is free — analyze, visualize, and generate in real-time."
-            />
         </>
       )}
+
+      {/* GLOBAL SHARE MODAL - ALWAYS AVAILABLE */}
+      <ShareModal 
+          isOpen={shareOpen} 
+          onClose={() => setShareOpen(false)} 
+          url={window.location.origin}
+          title="Check out NexaAI: Everything is free — analyze, visualize, and generate in real-time."
+      />
 
       {/* Main Content Area */}
       <main className="relative z-10 w-full h-full pt-20 md:pt-4 pb-24 md:pb-4 animate-in fade-in duration-1000">

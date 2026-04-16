@@ -118,19 +118,35 @@ export default function Canvas() {
         return true;
     };
 
+    const [isHighQuality, setIsHighQuality] = useState(false);
+
     const generateImage = () => {
         if (!prompt.trim() || mode !== "imagine") return;
         if (!validateSafety(prompt)) return;
         setIsLoading(true);
         addToHistoryLocally(prompt, "imagine");
-        const academicSuffix = isAcademic ? ", academic illustration, clean 2D vector, white background, educational style" : ", photorealistic, cinematic lighting, 8k resolution, highly detailed, masterpieces, natural textures";
+        
+        // Optimize prompt based on quality selection
+        const qualitySuffix = isHighQuality 
+            ? ", photorealistic, cinematic lighting, 8k resolution, highly detailed, masterpiece" 
+            : ", high quality, sharp focus, 4k";
+        const academicSuffix = isAcademic 
+            ? ", academic illustration, clean 2D vector, white background, educational style" 
+            : qualitySuffix;
+            
         const optimizedPrompt = `${prompt}${academicSuffix}`;
         const apiKey = import.meta.env.VITE_POLLINATIONS_API_KEY || "";
-        const size = 512;
-        const seed = Math.floor(Math.random() * 10000);
+        const size = isHighQuality ? 1024 : 512;
+        const seed = Math.floor(Math.random() * 1000000);
+        
+        // Use 'turbo' model for speed, 'flux' for quality
+        const model = isHighQuality ? "flux" : "turbo";
+        
         const baseUrl = apiKey ? "https://gen.pollinations.ai/image" : "https://image.pollinations.ai/prompt";
         const keyParam = apiKey ? `&key=${apiKey}` : "";
-        const url = `${baseUrl}/${encodeURIComponent(optimizedPrompt)}?width=${size}&height=${size}&seed=${seed}&nologo=true&model=flux${keyParam}`;
+        
+        const url = `${baseUrl}/${encodeURIComponent(optimizedPrompt)}?width=${size}&height=${size}&seed=${seed}&nologo=true&model=${model}${keyParam}`;
+        
         setArtUrl(url);
         setPrompt("");
     };
@@ -180,6 +196,7 @@ export default function Canvas() {
                 <ToolIcon icon={<ImageIcon size={20} />} active={mode === "imagine"} onClick={() => setMode("imagine")} title="Art" className="text-orange-400" />
                 <div className="h-px w-8 bg-white/5 my-2" />
                 <ToolIcon icon={<BookOpen size={20} />} active={isAcademic} onClick={() => setIsAcademic(!isAcademic)} title="Academic" className="text-blue-400" />
+                <ToolIcon icon={<Sparkles size={20} />} active={isHighQuality} onClick={() => setIsHighQuality(!isHighQuality)} title={isHighQuality ? "High Quality" : "Fast Speed"} className={isHighQuality ? "text-yellow-400" : "text-slate-500"} />
                 <div className="mt-auto flex flex-col gap-6">
                     <ToolIcon icon={<Download size={20} />} onClick={() => handleDownload()} className="text-green-500" title="Export" />
                     <ToolIcon icon={<Trash2 size={20} />} onClick={() => { setChart(""); setPrompt(""); }} className="hover:text-red-500" title="Clear" />
@@ -211,7 +228,8 @@ export default function Canvas() {
 
                     {/* Quality Badges */}
                     {mode === "imagine" && (
-                        <div className="absolute top-4 left-1/2 -translate-x-1/2 md:-translate-x-0 md:left-auto md:top-10 md:right-10 flex flex-row md:flex-col gap-2 md:gap-3 z-30 flex-wrap justify-center w-full max-w-[90%] md:w-auto mt-12 md:mt-0">
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 flex flex-row md:flex-col gap-2 md:gap-3 z-30 flex-wrap justify-center w-full max-w-[90%] md:w-auto mt-12 md:mt-0">
+                            <QualityBadge label={isHighQuality ? "✨ High Quality" : "⚡ Fast Speed"} active={true} onClick={() => setIsHighQuality(!isHighQuality)} className={isHighQuality ? "border-yellow-500/50 text-yellow-400" : "border-blue-500/50 text-blue-400"} />
                             <QualityBadge label="Cinematic" onClick={() => setPrompt(p => p + (p ? ", " : "") + "cinematic lighting, 8k, hyper-detailed")} />
                             <QualityBadge label="Cyberpunk" onClick={() => setPrompt(p => p + (p ? ", " : "") + "neon cyberpunk aesthetic")} />
                             <QualityBadge label="Fantasy" onClick={() => setPrompt(p => p + (p ? ", " : "") + "epic fantasy style, oil painting")} />
@@ -259,8 +277,16 @@ const ToolIcon = ({ icon, active = false, className = "", onClick = () => { }, t
     </div>
 );
 
-const QualityBadge = ({ label, onClick = () => {} }) => (
-    <button onClick={onClick} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] text-slate-500 hover:text-white hover:bg-orange-500/10 hover:border-orange-500/30 transition-all shadow-xl">
+const QualityBadge = ({ label, active = false, onClick = () => {}, className = "" }) => (
+    <button 
+        onClick={onClick} 
+        className={cn(
+            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-all shadow-xl border",
+            active ? "bg-white/10" : "bg-white/5",
+            !className && (active ? "border-orange-500/30 text-white" : "border-white/10 text-slate-500 hover:text-white"),
+            className
+        )}
+    >
         {label}
     </button>
 );
